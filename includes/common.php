@@ -67,7 +67,7 @@ $CACHE=new \lib\Cache();
 $conf=$CACHE->pre_fetch();
 define('SYS_KEY', $conf['syskey']);
 if(!$conf['localurl'])$conf['localurl'] = $siteurl;
-$password_hash='!@#%!s!0';
+$password_hash = SYS_KEY ? substr(md5(SYS_KEY . '!@#%!s!0'), 0, 16) : '!@#%!s!0';
 
 if ($conf['version'] < DB_VERSION) {
     if (!$install) {
@@ -78,6 +78,7 @@ if ($conf['version'] < DB_VERSION) {
 }
 
 include_once(SYSTEM_ROOT."functions.php");
+include_once(SYSTEM_ROOT."security.php");
 include_once(SYSTEM_ROOT."member.php");
 
 require_once SYSTEM_ROOT."vendor/autoload.php";

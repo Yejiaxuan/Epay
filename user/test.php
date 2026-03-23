@@ -13,7 +13,7 @@ if(isset($_GET['ok']) && isset($_GET['trade_no'])){
 	$userrow = $DB->getRow("SELECT uid,gid FROM pre_user WHERE uid='{$conf['test_pay_uid']}' limit 1");
 	if(!$userrow)sysmsg("测试支付商户不存在");
 	$paytype = \lib\Channel::getTypes($userrow['uid'], $userrow['gid']);
-	$csrf_token = md5(mt_rand(0,999).time());
+	$csrf_token = generate_csrf_token();
 	$_SESSION['csrf_token'] = $csrf_token;
 	$money = 1;
 }

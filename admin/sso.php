@@ -3,6 +3,10 @@ include("../includes/common.php");
 
 if($islogin==1){}else exit("<script language='javascript'>window.location.href='./login.php';</script>");
 
+if(!checkRefererHost()){
+	exit("<script language='javascript'>alert('非法请求');window.location.href='./';</script>");
+}
+
 $uid=intval($_GET['uid']);
 
 $userrow=$DB->getRow("select * from pre_user where uid='$uid' limit 1");

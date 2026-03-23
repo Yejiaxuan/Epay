@@ -19,7 +19,11 @@ case 'userList':
 	$sql=" 1=1";
 	if(isset($_POST['dstatus']) && !empty($_POST['dstatus'])) {
 		$dstatus = explode('_',$_POST['dstatus']);
-		$sql.=" AND `{$dstatus[0]}`='{$dstatus[1]}'";
+		$_dcol = safe_column($dstatus[0], ['status','pay','settle','cert']);
+		if($_dcol !== false && isset($dstatus[1])) {
+			$_dval = intval($dstatus[1]);
+			$sql.=" AND `{$_dcol}`='{$_dval}'";
+		}
 	}
 	if(isset($_POST['gid']) && $_POST['gid']!=='') {
 		$gid = intval($_POST['gid']);
@@ -30,7 +34,9 @@ case 'userList':
 		$sql.=" AND `upid`='$upid'";
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+		$_col = safe_column($_POST['column'], ['uid','email','qq','phone','account','username','url','key']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$sql.=" AND `{$_col}`='".safe_value($_POST['value'])."'";
 	}
 	if(isset($_POST['order_days']) && !empty($_POST['order_days'])) {
 		$order_days = intval($_POST['order_days']);
@@ -38,7 +44,7 @@ case 'userList':
 	}
 	$order = "uid desc";
 	if(isset($_POST['order']) && !empty($_POST['order'])) {
-		$order=str_replace('_', ' ', $_POST['order']);
+		$order = safe_order($_POST['order'], ['uid','money','addtime','logintime','status','gid','pay','settle'], 'uid desc');
 	}
 	$offset = intval($_POST['offset']);
 	$limit = intval($_POST['limit']);
@@ -76,7 +82,9 @@ case 'recordList':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+		$_col = safe_column($_POST['column'], ['uid','type','desc','id']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$sql.=" AND `{$_col}`='".safe_value($_POST['value'])."'";
 	}
 	$offset = intval($_POST['offset']);
 	$limit = intval($_POST['limit']);
@@ -103,7 +111,9 @@ case 'record_stats':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+		$_col = safe_column($_POST['column'], ['uid','type','desc','id']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$sql.=" AND `{$_col}`='".safe_value($_POST['value'])."'";
 	}
 	$result = $DB->getRow("SELECT 
         SUM(CASE WHEN action = 1 THEN money ELSE 0 END) AS incMoney,
@@ -288,7 +298,9 @@ break;
 case 'logList':
 	$sql=" 1=1";
 	if(isset($_POST['value']) && $_POST['value']!=='') {
-		$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+		$_col = safe_column($_POST['column'], ['uid','type','ip','id']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$sql.=" AND `{$_col}`='".safe_value($_POST['value'])."'";
 	}
 	$offset = intval($_POST['offset']);
 	$limit = intval($_POST['limit']);
@@ -305,7 +317,7 @@ case 'domainList':
 		$sql.=" AND `uid`='$uid'";
 	}
 	if(isset($_POST['kw']) && !empty($_POST['kw'])) {
-		$sql.=" AND `domain`='{$_POST['kw']}'";
+		$sql.=" AND `domain`='".safe_value($_POST['kw'])."'";
 	}
 	if(isset($_POST['dstatus']) && $_POST['dstatus']>-1) {
 		$dstatus = intval($_POST['dstatus']);
@@ -322,7 +334,7 @@ break;
 case 'blackList':
 	$sql=" 1=1";
 	if(isset($_POST['kw']) && !empty($_POST['kw'])) {
-		$sql.=" AND `content`='{$_POST['kw']}'";
+		$sql.=" AND `content`='".safe_value($_POST['kw'])."'";
 	}
 	if(isset($_POST['type']) && $_POST['type']>-1) {
 		$type = intval($_POST['type']);
@@ -634,6 +646,7 @@ case 'domain_operation':
 	$checkbox=$_POST['checkbox'];
 	$i=0;
 	foreach($checkbox as $id){
+		$id=intval($id);
 		if($status==3)$DB->exec("DELETE FROM pre_domain WHERE id='$id'");
 		else $DB->exec("UPDATE pre_domain SET status='$status',endtime=NOW() WHERE id='$id'");
 		$i++;
@@ -776,6 +789,7 @@ case 'batchdelBlack':
 	$checkbox=$_POST['checkbox'];
 	$i = 0;
 	if(!empty($checkbox)){
+		$checkbox = array_map('intval', $checkbox);
 		$i = $DB->exec("DELETE FROM pre_blacklist WHERE id IN (".implode(',',$checkbox).")");
 	}
 	exit('{"code":0,"msg":"成功删除了'.$i.'个黑名单"}');

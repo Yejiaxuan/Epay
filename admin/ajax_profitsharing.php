@@ -13,10 +13,12 @@ case 'receiverList':
 	$sql = " 1=1";
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
 		$value=daddslashes($_POST['value']);
-		if($_POST['column'] == 'info'){
+		$_col = safe_column($_POST['column'], ['info','account','id','uid','channel']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		if($_col == 'info'){
 			$sql .= " AND (A.`info` LIKE '%{$value}%' OR A.`account` LIKE '%{$value}%')";
 		}else{
-			$sql .= " AND A.`{$_POST['column']}`='{$value}'";
+			$sql .= " AND A.`{$_col}`='{$value}'";
 		}
 	}
 	$offset = intval($_POST['offset']);
@@ -55,7 +57,9 @@ case 'orderList':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		$sql.=" AND A.`{$_POST['column']}`='{$_POST['value']}'";
+		$_col = safe_column($_POST['column'], ['trade_no','rid','id','uid']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$sql.=" AND A.`{$_col}`='".safe_value($_POST['value'])."'";
 	}
 	$offset = intval($_POST['offset']);
 	$limit = intval($_POST['limit']);
@@ -295,6 +299,7 @@ case 'operation': //批量操作订单
 	$checkbox=$_POST['checkbox'];
 	$i=0;
 	foreach($checkbox as $id){
+		$id=intval($id);
 		if($status==5)$DB->exec("DELETE FROM pre_psorder WHERE id='$id'");
 		else $DB->exec("update pre_psorder set status='$status' where id='$id' limit 1");
 		$i++;
@@ -323,11 +328,12 @@ case 'statistics':
         }
     }
     if(isset($_POST['value']) && !empty($_POST['value'])) {
-        $column = daddslashes($_POST['column']);
-        if($column == 'money'){
-            $sql .= " AND {$column}='".floatval($_POST['value'])."'";
+        $_col = safe_column(daddslashes($_POST['column']), ['trade_no','rid','id','money']);
+        if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+        if($_col == 'money'){
+            $sql .= " AND {$_col}='".floatval($_POST['value'])."'";
         }else{
-            $sql .= " AND {$column}='".daddslashes($_POST['value'])."'";
+            $sql .= " AND {$_col}='".safe_value($_POST['value'])."'";
         }
     }
 

@@ -7,7 +7,7 @@ require './includes/common.php';
 
 $other=isset($_GET['other'])?true:false;
 $trade_no=daddslashes($_GET['trade_no']);
-$sitename=base64_decode(daddslashes($_GET['sitename']));
+$sitename=htmlspecialchars(base64_decode(daddslashes($_GET['sitename'])), ENT_QUOTES, 'UTF-8');
 $row=$DB->getRow("SELECT * FROM pre_order WHERE trade_no='{$trade_no}' limit 1");
 if(!$row)sysmsg('该订单号不存在，请返回来源地重新发起请求！');
 if($row['status']==1)sysmsg('该订单已完成支付，请勿重复支付');
@@ -61,7 +61,7 @@ if(strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger')!==false){
     <ul class="order-amount12-left">
         <li>
             <span>商品名称：</span>
-            <span><?php echo $row['name']?></span>
+            <span><?php echo htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8')?></span>
         </li>
         <li>
             <span>订单号：</span>

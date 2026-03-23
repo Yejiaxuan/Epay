@@ -19,7 +19,7 @@ case 'channelList':
 		$sql.=" AND A.`type`='$type'";
 	}
 	if(isset($_POST['plugin']) && !empty($_POST['plugin'])) {
-		$plugin = trim($_POST['plugin']);
+		$plugin = safe_value(trim($_POST['plugin']));
 		$sql.=" AND A.`plugin`='$plugin'";
 	}
 	if(isset($_POST['dstatus']) && $_POST['dstatus']>-1) {

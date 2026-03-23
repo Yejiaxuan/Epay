@@ -34,7 +34,15 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
     }
     $password = $plain;
   }
-  if($username == $conf['admin_user'] && $password == $conf['admin_pwd']){
+  if($username == $conf['admin_user'] && (
+    password_verify($password, $conf['admin_pwd']) ||
+    $password == $conf['admin_pwd']
+  )){
+    // 如果是明文密码匹配，自动升级为哈希存储
+    if (!password_verify($password, $conf['admin_pwd'])) {
+      saveSetting('admin_pwd', password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]));
+      $CACHE->clear();
+    }
     $DB->insert('log', ['uid'=>0, 'type'=>'登录后台', 'date'=>'NOW()', 'ip'=>$clientip]);
 		$session=md5($username.$password.$password_hash);
 		$expiretime=time() + 2592000;

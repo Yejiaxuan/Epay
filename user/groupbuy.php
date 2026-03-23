@@ -46,7 +46,7 @@ $group=[];
 foreach($list as $row){
 	$group[$row['gid']] = $row['name'];
 }
-$csrf_token = md5(mt_rand(0,999).time());
+$csrf_token = generate_csrf_token();
 $_SESSION['csrf_token'] = $csrf_token;
 
 $mygroup = $DB->getRow("SELECT * FROM pre_group WHERE gid='{$userrow['gid']}'");

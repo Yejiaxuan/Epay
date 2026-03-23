@@ -78,7 +78,7 @@ class Payment {
                 break;
             case 'page': //显示指定页面
                 include_once SYSTEM_ROOT.'txprotect.php';
-                if(isset($result['data'])) extract($result['data']);
+                if(isset($result['data'])) extract($result['data'], EXTR_SKIP);
                 if($conf['pageordername']==1)$order['name']=$ordername?$ordername:'onlinepay';
                 include PAYPAGE_ROOT.$result['page'].'.php';
                 break;

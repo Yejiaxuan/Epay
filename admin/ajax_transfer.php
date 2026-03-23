@@ -33,10 +33,13 @@ case 'transferList':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		if($_POST['column']=='username'||$_POST['column']=='desc'){
-			$sql.=" AND `{$_POST['column']}` LIKE '%{$_POST['value']}%'";
+		$_col = safe_column($_POST['column'], ['biz_no','out_biz_no','uid','username','account','desc','pay_order_no']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$_val = safe_value($_POST['value']);
+		if($_col=='username'||$_col=='desc'){
+			$sql.=" AND `{$_col}` LIKE '%{$_val}%'";
 		}else{
-			$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+			$sql.=" AND `{$_col}`='{$_val}'";
 		}
 	}
 	$offset = intval($_POST['offset']);
@@ -86,10 +89,13 @@ case 'statistics':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		if($_POST['column']=='username'||$_POST['column']=='desc'){
-			$sql.=" AND `{$_POST['column']}` LIKE '%{$_POST['value']}%'";
+		$_col = safe_column($_POST['column'], ['biz_no','out_biz_no','uid','username','account','desc','pay_order_no']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$_val = safe_value($_POST['value']);
+		if($_col=='username'||$_col=='desc'){
+			$sql.=" AND `{$_col}` LIKE '%{$_val}%'";
 		}else{
-			$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+			$sql.=" AND `{$_col}`='{$_val}'";
 		}
 	}
 	$totalMoney = $DB->getColumn("SELECT SUM(money) FROM pre_transfer WHERE{$sql} AND status<>2");

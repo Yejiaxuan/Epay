@@ -13,7 +13,7 @@ if (function_exists("ignore_user_abort"))
 	@ignore_user_abort(true);
 }
 
-$sitename=isset($_GET['sitename'])?base64_decode($_GET['sitename']):'';
+$sitename=isset($_GET['sitename'])?htmlspecialchars(base64_decode($_GET['sitename']), ENT_QUOTES, 'UTF-8'):'';
 $submit2=true;
 
 try{

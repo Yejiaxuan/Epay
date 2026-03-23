@@ -56,14 +56,17 @@ case 'orderList':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		if($_POST['column']=='name'){
-			$sql.=" AND A.`{$_POST['column']}` like '%{$_POST['value']}%'";
+		$_col = safe_column($_POST['column'], ['trade_no','out_trade_no','name','money','realmoney','getmoney','uid','ip','buyer','mobile','api_trade_no']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$_val = safe_value($_POST['value']);
+		if($_col=='name'){
+			$sql.=" AND A.`{$_col}` like '%{$_val}%'";
 		}else{
-			if(($_POST['column'] == 'money' || $_POST['column'] == 'realmoney' || $_POST['column'] == 'getmoney') && strpos($_POST['value'],'-')){
-				$money = explode('-', $_POST['value']);
-				$sql.=" AND A.`{$_POST['column']}`>='{$money[0]}' AND A.`{$_POST['column']}`<='{$money[1]}'";
+			if(($_col == 'money' || $_col == 'realmoney' || $_col == 'getmoney') && strpos($_val,'-')){
+				$money = explode('-', $_val);
+				$sql.=" AND A.`{$_col}`='".safe_value($money[0])."' AND A.`{$_col}`<='".safe_value($money[1])."'";
 			}else{
-				$sql.=" AND A.`{$_POST['column']}`='{$_POST['value']}'";
+				$sql.=" AND A.`{$_col}`='{$_val}'";
 			}
 		}
 	}
@@ -112,14 +115,17 @@ case 'statistics':
 		}
 	}
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		if($_POST['column']=='name'){
-			$sql.=" AND A.`{$_POST['column']}` like '%{$_POST['value']}%'";
+		$_col = safe_column($_POST['column'], ['trade_no','out_trade_no','name','money','realmoney','getmoney','uid','ip','buyer','mobile','api_trade_no']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$_val = safe_value($_POST['value']);
+		if($_col=='name'){
+			$sql.=" AND A.`{$_col}` like '%{$_val}%'";
 		}else{
-			if(($_POST['column'] == 'money' || $_POST['column'] == 'realmoney' || $_POST['column'] == 'getmoney') && strpos($_POST['value'],'-')){
-				$money = explode('-', $_POST['value']);
-				$sql.=" AND A.`{$_POST['column']}`>='{$money[0]}' AND A.`{$_POST['column']}`<='{$money[1]}'";
+			if(($_col == 'money' || $_col == 'realmoney' || $_col == 'getmoney') && strpos($_val,'-')){
+				$money = explode('-', $_val);
+				$sql.=" AND A.`{$_col}`>='".safe_value($money[0])."' AND A.`{$_col}`<='".safe_value($money[1])."'";
 			}else{
-				$sql.=" AND A.`{$_POST['column']}`='{$_POST['value']}'";
+				$sql.=" AND A.`{$_col}`='{$_val}'";
 			}
 		}
 	}
@@ -159,7 +165,9 @@ break;
 case 'riskList':
 	$sql=" 1=1";
 	if(isset($_POST['value']) && !empty($_POST['value'])) {
-		$sql.=" AND `{$_POST['column']}`='{$_POST['value']}'";
+		$_col = safe_column($_POST['column'], ['trade_no','out_trade_no','uid','ip','buyer']);
+		if($_col === false) exit('{"code":-1,"msg":"无效的搜索字段"}');
+		$sql.=" AND `{$_col}`='".safe_value($_POST['value'])."'";
 	}
 	if(isset($_POST['type']) && $_POST['type']>-1) {
 		$type = intval($_POST['type']);
@@ -210,6 +218,7 @@ case 'operation': //批量操作订单
 	$checkbox=$_POST['checkbox'];
 	$i=0;
 	foreach($checkbox as $trade_no){
+		$trade_no=daddslashes(trim($trade_no));
 		if($status==4)$DB->exec("DELETE FROM pre_order WHERE trade_no='$trade_no'");
 		elseif($status==3){
 			\lib\Order::unfreeze($trade_no);

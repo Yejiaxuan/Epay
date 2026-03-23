@@ -28,8 +28,8 @@ function curl_get($url)
 	$httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
 	$httpheader[] = "Connection: close";
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
 	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
@@ -41,8 +41,8 @@ function get_curl($url, $post=0, $referer=0, $cookie=0, $header=0, $ua=0, $nobao
 {
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	$httpheader[] = "Accept: */*";
 	$httpheader[] = "Accept-Encoding: gzip,deflate,sdch";
 	$httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
@@ -104,18 +104,8 @@ function real_ip($type=0){
 }
 function get_ip_city($ip)
 {
-    $url = 'https://www.bt.cn/api/panel/get_ip_info?ip=' . $ip;
-    $response = get_curl($url);
-    $result = json_decode($response, true);
-	if(isset($result[$ip])){
-		$data = $result[$ip];
-		if($data['country'] == '中国'){
-			return $data['province'].$data['city'];
-		}else{
-			return $data['country'].$data['province'].$data['city'];
-		}
-	}
-	return false;
+    // 已移除外部 API 调用（bt.cn），防止用户 IP 泄露到第三方
+    return false;
 }
 function send_mail($to, $sub, $msg) {
 	global $conf;
@@ -200,7 +190,7 @@ function send_sms_common($phone, $tpl_code, $tpl_param){
 		$sms = new \lib\sms\SmsBao($conf['sms_appid'], $conf['sms_appkey']);
 		return $sms->send($phone, $tpl_param, $tpl_code, $conf['sms_sign']);
 	}else{
-		$url = 'http://sms.php.gs/sms/send/yzm';
+		$url = 'https://sms.php.gs/sms/send/yzm';
 		$param = ['appkey'=>$conf['sms_appkey'], 'phone'=>$phone, 'moban'=>$tpl_code];
 		$param = array_merge($param, $tpl_param);
 		$data=get_curl($url, http_build_query($param));
@@ -1462,8 +1452,8 @@ function check_proxy($url)
 	$httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
 	$httpheader[] = "Connection: close";
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
 	curl_setopt($ch, CURLOPT_TIMEOUT, 3);

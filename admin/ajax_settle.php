@@ -65,7 +65,7 @@ case 'create_batch':
 	exit(json_encode(['code'=>0, 'msg'=>'succ', 'batch'=>$batch, 'count'=>$count, 'allmoney'=>$allmoney]));
 break;
 case 'complete_batch':
-	$batch=trim($_POST['batch']);
+	$batch=daddslashes(trim($_POST['batch']));
 	$DB->exec("UPDATE pre_settle SET status=1 WHERE batch='$batch'");
 	exit('{"code":0,"msg":"succ"}');
 break;
@@ -102,6 +102,7 @@ case 'opslist':
 	$checkbox=$_POST['checkbox'];
 	$i=0;
 	foreach($checkbox as $id){
+		$id=intval($id);
 		if($status==4){
 			$sql = "DELETE FROM pre_settle WHERE id='$id'";
 		}elseif($status==1){
@@ -124,7 +125,7 @@ case 'settle_result':
 break;
 case 'settle_setresult':
 	$id=intval($_POST['id']);
-	$result=trim($_POST['result']);
+	$result=daddslashes(trim($_POST['result']));
 	$row=$DB->getRow("select * from pre_settle where id='$id' limit 1");
 	if(!$row)
 		exit('{"code":-1,"msg":"当前结算记录不存在！"}');

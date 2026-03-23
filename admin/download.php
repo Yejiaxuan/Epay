@@ -37,7 +37,7 @@ function text_encoding($text){
 switch($act){
 case 'settle':
 $type = isset($_GET['type'])?trim($_GET['type']):'common';
-$batch=$_GET['batch'];
+$batch=daddslashes($_GET['batch']);
 $remark = text_encoding($conf['transfer_desc']);
 
 if($type == 'mybank'){
@@ -119,8 +119,8 @@ echo $data;
 break;
 
 case 'ustat':
-$startday = trim($_GET['startday']);
-$endday = trim($_GET['endday']);
+$startday = daddslashes(trim($_GET['startday']));
+$endday = daddslashes(trim($_GET['endday']));
 $method = trim($_GET['method']);
 $type = intval($_GET['type']);
 if(!$startday || !$endday)exit("<script language='javascript'>alert('param error');history.go(-1);</script>");
@@ -330,7 +330,7 @@ case 'record':
 $starttime = trim($_GET['starttime']);
 $endtime = trim($_GET['endtime']);
 $uid = intval($_GET['uid']);
-$type = trim($_GET['type']);
+$type = daddslashes(trim($_GET['type']));
 
 $sql=" 1=1";
 if(!empty($uid)) {
@@ -369,9 +369,9 @@ case 'transfer':
 $remark = text_encoding($conf['transfer_desc']);
 $starttime = trim($_GET['starttime']);
 $endtime = trim($_GET['endtime']);
-$uid = trim($_GET['uid']);
-$dstatus = trim($_GET['dstatus']);
-$type = trim($_GET['type']);
+$uid = intval($_GET['uid']);
+$dstatus = intval($_GET['dstatus']);
+$type = daddslashes(trim($_GET['type']));
 $sheet = trim($_GET['sheet']);
 
 $sql=" 1=1";
@@ -525,10 +525,14 @@ if(!empty($_GET['starttime']) || !empty($_GET['endtime'])){
 	}
 }
 if(isset($_GET['value']) && !empty($_GET['value'])) {
-	if($_GET['column']=='title' || $_GET['column']=='content'){
-		$sql.=" AND A.`{$_GET['column']}` like '%{$_GET['value']}%'";
-	}else{
-		$sql.=" AND A.`{$_GET['column']}`='{$_GET['value']}'";
+	$_col = safe_column($_GET['column'], ['title','content','trade_no','uid','id','channel']);
+	if($_col !== false) {
+		$_val = safe_value($_GET['value']);
+		if($_col=='title' || $_col=='content'){
+			$sql.=" AND A.`{$_col}` like '%{$_val}%'";
+		}else{
+			$sql.=" AND A.`{$_col}`='{$_val}'";
+		}
 	}
 }
 

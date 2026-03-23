@@ -4,7 +4,7 @@ include("../includes/common.php");
 
 //if($conf['reg_open']==0)sysmsg('未开放商户申请');
 
-$csrf_token = md5(mt_rand(0,999).time());
+$csrf_token = generate_csrf_token();
 $_SESSION['csrf_token'] = $csrf_token;
 ?>
 <!DOCTYPE html>

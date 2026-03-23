@@ -5,6 +5,18 @@ require '../config.php';
 
 @header('Content-Type: text/html; charset=UTF-8');
 
+// 安全检查：仅允许已安装的系统通过管理员登录后访问
+if(file_exists('install.lock')){
+	// 已安装的系统，需要验证管理员身份
+	session_start();
+	$nosession = false;
+	$install = true;
+	include_once('../includes/common.php');
+	if($islogin != 1){
+		exit('请先<a href="/admin/login.php">登录管理后台</a>后再进行升级操作');
+	}
+}
+
 try{
 	$db=new PDO("mysql:host=".$dbconfig['host'].";dbname=".$dbconfig['dbname'].";port=".$dbconfig['port'],$dbconfig['user'],$dbconfig['pwd']);
 }catch(Exception $e){
