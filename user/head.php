@@ -39,70 +39,63 @@ $conf = array_merge($conf, $groupconfig);
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       border-bottom: none;
   }
-  .bg-white {
-      background-color: #ffffff;
-  }
-  .navbar-brand {
-      font-weight: 700;
-  }
-  .app-aside {
-      box-shadow: 2px 0 10px rgba(0,0,0,0.03);
-  }
+  .bg-white { background-color: #ffffff; }
+  .navbar-brand { font-weight: 700; }
+  .app-aside { box-shadow: 2px 0 10px rgba(0,0,0,0.03); }
   .panel {
       border: none;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.04);
       transition: all 0.2s;
   }
-  .panel:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-  }
+  .panel:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
   .panel-heading {
       border-top-left-radius: 12px !important;
       border-top-right-radius: 12px !important;
       font-weight: 600;
   }
-  .btn {
+  .btn { border-radius: 8px; transition: all 0.2s; }
+  .btn-primary { background-color: #1a73e8; border-color: #1a73e8; }
+  .btn-primary:hover { background-color: #1557b0; border-color: #1557b0; box-shadow: 0 4px 10px rgba(26,115,232,0.3); }
+  .table-responsive { border-radius: 12px; }
+  .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+      border-top: 1px solid #f1f3f4;
+      vertical-align: middle;
+      padding: 12px 8px;
+  }
+  .table-striped > tbody > tr:nth-of-type(odd) { background-color: #f8f9fa; }
+  .table-striped > tbody > tr:hover { background-color: #e8f0fe; }
+  .form-control {
       border-radius: 8px;
+      border: 1px solid #dce1e6;
+      box-shadow: none;
+      padding: 8px 12px;
   }
-  .table-responsive {
-      border-radius: 12px;
+  .form-control:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
   }
-  .wrapper-md {
-      padding: 25px;
-  }
-  .h1, .h2, .h3, h1, h2, h3 {
-      font-weight: 600;
-  }
+  .input-group-addon { border-radius: 8px; background-color: #f1f3f4; border: 1px solid #dce1e6; }
+  .pagination > li > a, .pagination > li > span { border-radius: 8px; margin: 0 3px; border: 1px solid #dce1e6; color: #5f6368; }
+  .pagination > .active > a, .pagination > .active > span { background-color: #1a73e8; border-color: #1a73e8; }
+  .list-group-item { border: 1px solid #f1f3f4; }
+  .list-group-item:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+  .list-group-item:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+  .alert { border-radius: 12px; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+  .wrapper-md { padding: 25px; }
+  .h1, .h2, .h3, h1, h2, h3 { font-weight: 600; }
   .round {
-      line-height: 53px;
-      color: #1a73e8;
-      width: 58px;
-      height: 58px;
-      font-size: 26px;
-      margin-left: 15px;
-      display: inline-block;
-      font-weight: 400;
-      border: 3px solid #e8f0fe;
-      text-align: center;
-      border-radius: 50%;
-      background: #e8f0fe;
+      line-height: 53px; color: #1a73e8; width: 58px; height: 58px; font-size: 26px;
+      margin-left: 15px; display: inline-block; font-weight: 400;
+      border: 3px solid #e8f0fe; text-align: center; border-radius: 50%; background: #e8f0fe;
   }
-  .text-primary-dk, .text-info-dk, .text-success-dk, .text-dark-dk {
-      color: #202124 !important;
-  }
-  .navi ul.nav li > a {
-      font-weight: 500;
-  }
+  .text-primary-dk, .text-info-dk, .text-success-dk, .text-dark-dk { color: #202124 !important; }
+  .navi ul.nav li > a { font-weight: 500; }
   .navi ul.nav li.active > a {
-      color: #1a73e8 !important;
-      background-color: #e8f0fe !important;
-      border-radius: 0 20px 20px 0;
-      margin-right: 15px;
+      color: #1a73e8 !important; background-color: #e8f0fe !important;
+      border-radius: 0 20px 20px 0; margin-right: 15px;
   }
-  .navi ul.nav li.active > a i {
-      color: #1a73e8 !important;
-  }
+  .navi ul.nav li.active > a i { color: #1a73e8 !important; }
   </style>
 </head>
 <body>
