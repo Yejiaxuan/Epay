@@ -152,6 +152,118 @@ $_SESSION['paypage_token'] = $csrf_token;
     <meta http-equiv="expires" content="0">
     <link rel="stylesheet" href="css/default.css">
     <link rel="stylesheet" href="css/style.css?version=1001">
+    <style>
+        /* Modern Paypage Overrides */
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+        .content {
+            background-color: #ffffff;
+            border-radius: 16px;
+            margin: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            padding-bottom: 20px;
+            overflow: hidden;
+        }
+        .selTitle {
+            font-size: 18px;
+            font-weight: 600;
+            color: #202124;
+        }
+        .payMoney {
+            font-size: 15px;
+            color: #5f6368;
+            margin-bottom: 10px;
+        }
+        .amount_bd {
+            border-bottom: 2px solid #e8eaed;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: baseline;
+        }
+        .i_money {
+            font-size: 28px;
+            font-weight: 600;
+            color: #202124;
+            margin-right: 5px;
+        }
+        .input_simu {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+        .set_remark {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+        .remark_add {
+            color: #1a73e8;
+            font-weight: 500;
+        }
+        /* Modern Keyboard */
+        .keyboard {
+            background-color: #f1f3f4;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .key_table td.key {
+            background-color: #ffffff;
+            font-size: 24px;
+            font-weight: 500;
+            color: #202124;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .key_table td.key:active {
+            background-color: #e8eaed;
+        }
+        .key_table {
+            border-spacing: 8px;
+            border-collapse: separate;
+            background: transparent;
+        }
+        .key_table td.pay_btn {
+            background-color: #1a73e8;
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(26,115,232,0.3);
+            border: none;
+        }
+        .key_table td.pay_btn:active {
+            background-color: #1557b0;
+        }
+        .copyRight {
+            color: #9aa0a6;
+            margin-bottom: 20px;
+        }
+        .modal-content {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e8eaed;
+        }
+        .modal-header .title {
+            font-weight: 600;
+            color: #202124;
+        }
+        .modal-body button {
+            background-color: #1a73e8;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+    </style>
 </head>
 <body>
 <div class="layout-flex wrap">

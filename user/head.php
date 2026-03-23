@@ -29,6 +29,81 @@ $conf = array_merge($conf, $groupconfig);
   <link rel="stylesheet" href="./assets/css/font.css" type="text/css" />
   <link rel="stylesheet" href="./assets/css/app.css" type="text/css" />
   <link rel="stylesheet" href="../assets/css/bootstrap-table.css?v=1"/>
+<style>
+  /* Modern Dashboard Overrides */
+  body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f6f8;
+  }
+  .app-header {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-bottom: none;
+  }
+  .bg-white {
+      background-color: #ffffff;
+  }
+  .navbar-brand {
+      font-weight: 700;
+  }
+  .app-aside {
+      box-shadow: 2px 0 10px rgba(0,0,0,0.03);
+  }
+  .panel {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+  }
+  .panel:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  }
+  .panel-heading {
+      border-top-left-radius: 12px !important;
+      border-top-right-radius: 12px !important;
+      font-weight: 600;
+  }
+  .btn {
+      border-radius: 8px;
+  }
+  .table-responsive {
+      border-radius: 12px;
+  }
+  .wrapper-md {
+      padding: 25px;
+  }
+  .h1, .h2, .h3, h1, h2, h3 {
+      font-weight: 600;
+  }
+  .round {
+      line-height: 53px;
+      color: #1a73e8;
+      width: 58px;
+      height: 58px;
+      font-size: 26px;
+      margin-left: 15px;
+      display: inline-block;
+      font-weight: 400;
+      border: 3px solid #e8f0fe;
+      text-align: center;
+      border-radius: 50%;
+      background: #e8f0fe;
+  }
+  .text-primary-dk, .text-info-dk, .text-success-dk, .text-dark-dk {
+      color: #202124 !important;
+  }
+  .navi ul.nav li > a {
+      font-weight: 500;
+  }
+  .navi ul.nav li.active > a {
+      color: #1a73e8 !important;
+      background-color: #e8f0fe !important;
+      border-radius: 0 20px 20px 0;
+      margin-right: 15px;
+  }
+  .navi ul.nav li.active > a i {
+      color: #1a73e8 !important;
+  }
+  </style>
 </head>
 <body>
 <div class="app app-header-fixed  ">

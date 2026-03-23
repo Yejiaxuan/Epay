@@ -16,7 +16,19 @@ $codename = !empty($userrow['codename'])?$userrow['codename']:$userrow['username
     <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>支付成功页面</title>
     <link href="/assets/css/weui.min.css" rel="stylesheet">
-    <style>.page{position:absolute;top:0;right:0;bottom:0;left:0;overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box}</style>
+    <style>
+        .page{position:absolute;top:0;right:0;bottom:0;left:0;overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box}
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f0f2f5; }
+        .weui-msg { background-color: #ffffff; margin: 20px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); padding-top: 40px; }
+        .weui-msg__title span { color: #1a73e8 !important; }
+        .weui-cells { border-radius: 12px; margin: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; background-color: #f8f9fa; }
+        .weui-cells:before, .weui-cells:after { display: none; }
+        .weui-cell { padding: 16px; }
+        .weui-cell:before { left: 16px; right: 16px; }
+        .weui-btn_default { background-color: #f1f3f4; color: #202124; font-weight: 600; border-radius: 10px; }
+        .weui-btn_default:active { background-color: #e8eaed !important; }
+        .weui-footer__text { color: #9aa0a6; }
+    </style>
 </head>
 <body>
 <div class="container">

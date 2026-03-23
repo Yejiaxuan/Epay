@@ -2,105 +2,176 @@
 if(!defined('IN_CRONLITE'))exit();
 require INDEX_ROOT.'head.php';
 ?>
-<section class="screen1">
-<div id="myCarousel"class="carousel slide">
-<div class="carousel-inner">
+<style>
+/* Hero Section */
+.hero-section {
+    padding: 100px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    text-align: center;
+}
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #202124;
+    margin-bottom: 20px;
+}
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #5f6368;
+    margin-bottom: 40px;
+}
+.hero-actions .btn {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    margin: 0 10px;
+    transition: all 0.2s;
+}
+.btn-primary-custom {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(26,115,232,0.2);
+}
+.btn-primary-custom:hover {
+    background-color: #1557b0;
+    color: white;
+    box-shadow: 0 6px 10px rgba(26,115,232,0.3);
+}
+.btn-outline-custom {
+    background-color: transparent;
+    color: #1a73e8;
+    border: 2px solid #1a73e8;
+}
+.btn-outline-custom:hover {
+    background-color: rgba(26,115,232,0.05);
+    color: #1557b0;
+}
 
-<div class="item active">
-<div class="banner2 banner3">
-<div class="container">
-<div class="row">
+/* Features Section */
+.features-section {
+    padding: 80px 0;
+    background: white;
+}
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 50px;
+    color: #202124;
+}
+.feature-card {
+    text-align: center;
+    padding: 40px 20px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+    height: 100%;
+    margin-bottom: 30px;
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+.feature-icon {
+    font-size: 40px;
+    color: #1a73e8;
+    margin-bottom: 20px;
+}
+.feature-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #202124;
+}
+.feature-desc {
+    color: #5f6368;
+    line-height: 1.6;
+}
 
-<div class="col-xs-12 col-sm-6 col-md-6">
-<div class="ban2_img">
-<div class="cloud_db_img"><img src="<?php echo STATIC_ROOT?>images/banner4.png"class="img-responsive"></div>
-</div>
-</div>
-<div class="col-xs-12 col-sm-6 col-md-6">
-<div class="ban2_text">
-<div class="ban2_status docker">
-<div class="ban2_middle">欢迎使用<?php echo $conf['sitename']?></div>
-<div class="ban2_content">提供免签约支付宝、QQ钱包、微信支付</div>
-                      
-                        <div class="ban2_experience">
-<a href="/user/"class="btn proceed">登录商户</a>&nbsp;&nbsp;<a href="/user/reg.php"class="btn proceed">注册商户</a><br/>
-                      </div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
+/* Partners Section */
+.partners-section {
+    padding: 60px 0;
+    background: #f8f9fa;
+    text-align: center;
+}
+.partner-logo {
+    max-width: 120px;
+    height: auto;
+    margin: 20px auto;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s;
+}
+.partner-logo:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+</style>
 
-</div>
-<!--   <ol class="carousel-indicators">
-<li data-target="#myCarousel"data-slide-to="1"class="active"></li>
-</ol>
-<div id="trun_left"><a href="#myCarousel"data-slide="prev"class="_left">&lsaquo;</a></div>
-<div id="trun_right"><a href="#myCarousel"data-slide="next"class="_right">&rsaquo;</a></div>-->
-</div>
-
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <h1 class="hero-title">欢迎使用<?php echo $conf['sitename']?></h1>
+                <p class="hero-subtitle">提供安全、稳定、快捷的支付接口服务，支持多种支付方式，费率超低，极速接入。</p>
+                <div class="hero-actions">
+                    <a href="/user/" class="btn btn-primary-custom">登录商户</a>
+                    <a href="/user/reg.php" class="btn btn-outline-custom">注册商户</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
    
-   <section class="screen3">
-<div class="container">
-<div class="row">
-<div class="col-xs-12 cloud_server">
-<div class="h3"><?php echo $conf['sitename']?>®免签约支付产品</div>
-</div>
-<div class="col-xs-6 col-sm-4 col-md-4">
-<div id="container_server">
-<div class="server_item container_server"></div>
-<div class="server-head h4">多种支付方式
-<div class="h5 text-center">支持财付通 支付宝 微信 QQ钱包</div>
-</div>
-</div>
-</div>
-<div class="col-xs-6 col-sm-4 col-md-4">
-<div id="server-arrange">
-<div class="server_item arrange"></div>
-<div class="server-head h4">对接费率超低
-<div class="h5 text-center">每笔交易手续费低至2%，比其它平台更便宜</div>
-</div>
-</div>
-</div>
-<div class="col-xs-6 col-sm-4 col-md-4">
-<div id="codebuild">
-<div class="server_item codebuild"></div>
-<div class="server-head h4">无需自主提现
-<div class="h5 text-center">满一定金额即可自动提现到你的支付宝账号</div>
-</div>
-</div>
-</div>
-
-
-</div>
-</div>
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title"><?php echo $conf['sitename']?> 核心优势</h2>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="feature-card">
+                    <i class="fa fa-credit-card feature-icon"></i>
+                    <h3 class="feature-title">多种支付方式</h3>
+                    <p class="feature-desc">支持支付宝、微信、QQ钱包、云闪付等主流支付方式，满足您的所有收款需求。</p>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="feature-card">
+                    <i class="fa fa-percent feature-icon"></i>
+                    <h3 class="feature-title">对接费率超低</h3>
+                    <p class="feature-desc">极具竞争力的费率体系，每笔交易手续费更低，为您最大程度节省成本。</p>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="feature-card">
+                    <i class="fa fa-bank feature-icon"></i>
+                    <h3 class="feature-title">资金安全保障</h3>
+                    <p class="feature-desc">无需自主提现，满一定金额即可自动结算到您的收款账户，资金安全无忧。</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
-  
-    <section class="screen4">
-<div class="container">
-<div class="row">
-<div class="col-xs-12 blog-head">
-<div class="h3">平台合作伙伴</div>
-<div class="col-xs-3">
-<img src="<?php echo STATIC_ROOT?>images/alipay.png" width="150">
-</div>
-<div class="col-xs-3">
-<img src="<?php echo STATIC_ROOT?>images/wxpay.png" width="150">
-</div>
-<div class="col-xs-3">
-<img src="<?php echo STATIC_ROOT?>images/qqpay.png" width="150">
-</div>
-<div class="col-xs-3">
-<img src="<?php echo STATIC_ROOT?>images/tenpay.png" width="150">
-</div>
-</div>
-          
-          
+<section class="partners-section">
+    <div class="container">
+        <h2 class="section-title" style="margin-bottom: 30px; font-size: 1.75rem;">合作伙伴</h2>
+        <div class="row">
+            <div class="col-xs-6 col-sm-3">
+                <img src="<?php echo STATIC_ROOT?>images/alipay.png" class="partner-logo img-responsive" alt="支付宝">
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <img src="<?php echo STATIC_ROOT?>images/wxpay.png" class="partner-logo img-responsive" alt="微信支付">
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <img src="<?php echo STATIC_ROOT?>images/qqpay.png" class="partner-logo img-responsive" alt="QQ钱包">
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <img src="<?php echo STATIC_ROOT?>images/tenpay.png" class="partner-logo img-responsive" alt="财付通">
+            </div>
         </div>
-</div>
+    </div>
 </section>
 
 <?php require INDEX_ROOT.'foot.php';?>

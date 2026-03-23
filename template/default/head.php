@@ -13,60 +13,109 @@ if(!defined('IN_CRONLITE'))exit();
 <meta name="renderer"content="webkit">
 <link rel="stylesheet" href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" />
 <link rel="stylesheet" href="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/css/bootstrap.min.css" type="text/css" />
-<link rel="stylesheet"href="<?php echo STATIC_ROOT?>css/common.css">
-<link rel="stylesheet"href="<?php echo STATIC_ROOT?>css/index-top.css">
-<!--[if IE 9 ]><style type="text/css">#ie9{ display:block; }</style><![endif]-->
 <script src="<?php echo $cdnpublic?>jquery/1.12.4/jquery.min.js"></script>
 <script src="<?php echo $cdnpublic?>twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<link rel="stylesheet"type="text/css"href="<?php echo STATIC_ROOT?>css/index.css"/>
+<style>
+/* Modern Base Styles */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    -webkit-font-smoothing: antialiased;
+}
+/* Navbar */
+.navbar-default {
+    background-color: #ffffff;
+    border-color: rgba(0,0,0,0.05);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.03);
+    margin-bottom: 0;
+    padding: 10px 0;
+}
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 22px;
+    color: #1a73e8 !important;
+}
+.navbar-brand img {
+    height: 32px;
+    margin-right: 12px;
+}
+.navbar-default .navbar-nav > li > a {
+    color: #555;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 15px 20px;
+    transition: all 0.2s;
+}
+.navbar-default .navbar-nav > li > a:hover {
+    color: #1a73e8;
+}
+.navbar-default .navbar-toggle {
+    border-color: transparent;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+    background-color: transparent;
+}
+.navbar-default .navbar-collapse {
+    border-color: rgba(0,0,0,0.05);
+}
+/* Scroll to Top */
+#scroll_Top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1a73e8;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.3);
+    z-index: 999;
+}
+#scroll_Top:hover {
+    background: #1557b0;
+}
+#scroll_Top a {
+    display: none;
+}
+</style>
 </head>
 <body>
-<!--[if (gt IE 6)&amp;(lt IE 9)]>
-<h1 style='color:red;text-align:center;'>
-      你好，浏览器版本过低，升级可正常访问,点击<a style="color:blue"href="http://browsehappy.com/">升级您的浏览器</a>
-</h1>
-<style type="text/css">#ielt9{ display: none; }h1{ height:300px;line-height: 300px;display:block; }header{ display: none; }#ie9{ display: block; }.tenxcloud-logo{ margin:50px auto 0;display:block}</style>
-<![endif]-->
 
-<div id="ielt9"style="height:100%">
 <header>
-<nav id="main-nav"class="navbar navbar-default"role="navigation">
+<nav class="navbar navbar-default" role="navigation">
 <div class="container">
-<div class="row">
 <div class="navbar-header">
-<button type="button"class="toggle navbar-toggle collapsed"data-toggle="collapse"data-target=".navbar-top-collapse">
+<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-top-collapse">
 <span class="sr-only">Toggle navigation</span>
 <span class="icon-bar"></span>
 <span class="icon-bar"></span>
 <span class="icon-bar"></span>
 </button>
-<a href="/"><span class="logo" style="background:url(assets/img/logo.png) no-repeat;background-size: auto 45px"></span></a>
+<a href="/" class="navbar-brand">
+<img src="assets/img/logo.png" onerror="this.style.display='none'">
+<?php echo $conf['sitename']?>
+</a>
 </div>
-<div class="navbar-collapse navbar-top-collapse collapse"style="height: 1px;">
-<ul class="nav navbar-nav navbar-right c_navbar">
-
-</ul>
-<ul class="nav navbar-nav navbar-right z_navbar">
+<div class="navbar-collapse navbar-top-collapse collapse">
+<ul class="nav navbar-nav navbar-right">
 <li><a href="/">首页</a></li>
 <li><a href="doc.html">开发文档</a></li>
 <?php if($conf['test_open']){?>
 <li><a href="/user/test.php">支付测试</a></li>
 <?php }?>
-<li><a href="/user/">用户中心</a></li>
-                    
-                </ul>
-</div>
+<li><a href="/user/" class="btn-login-nav" style="color:#1a73e8;">用户中心</a></li>
+</ul>
 </div>
 </div>
 </nav>
 </header>
-<div id="ie9">你当前的浏览器版本过低，请您升级至IE9以上版本，以达到最佳效果，谢谢！<span class="closeIE">X</span></div>
-<div id="scroll_Top">
+<div id="scroll_Top" onclick="window.scrollTo({top:0, behavior:'smooth'})">
 <i class="fa fa-arrow-up"></i>
-<a href="javascript:;"title="去顶部"class="TopTop">TOP</a></div>
-<script>
-
-  $('.closeIE').click(function(event) {
-    $('#ie9').fadeOut();
-  });
-</script>
+</div>

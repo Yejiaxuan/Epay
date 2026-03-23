@@ -28,7 +28,157 @@ $_SESSION['csrf_token'] = $csrf_token;
 <link rel="stylesheet" href="./assets/css/font.css" type="text/css" />
 <link rel="stylesheet" href="./assets/css/app.css" type="text/css" />
 <link rel="stylesheet" href="./assets/css/captcha.css" type="text/css" />
-<style>input:-webkit-autofill{-webkit-box-shadow:0 0 0px 1000px white inset;-webkit-text-fill-color:#333;}</style>
+<style>
+/* Modern Auth UI Overrides */
+body {
+    background: linear-gradient(135deg, #f0f2f5 0%, #e9ecef 100%);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.app-header-fixed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+.w-xxl {
+    width: 420px;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 40px 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+.navbar-brand {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a73e8 !important;
+    text-align: center;
+    margin-bottom: 10px;
+    display: block;
+}
+.wrapper.text-center strong {
+    font-size: 15px;
+    color: #5f6368;
+    font-weight: 500;
+}
+.list-group-sm {
+    border-radius: 12px;
+    box-shadow: none;
+    border: 1px solid #e8eaed;
+    overflow: hidden;
+    margin-top: 15px;
+}
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #e8eaed;
+    padding: 16px 20px;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
+.form-control.no-border {
+    font-size: 15px;
+    color: #202124;
+    padding: 0;
+}
+.form-control.no-border::placeholder {
+    color: #9aa0a6;
+}
+.btn-primary {
+    background-color: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px;
+    margin-top: 25px;
+    transition: all 0.2s;
+}
+.btn-primary:hover {
+    background-color: #1557b0 !important;
+    border-color: #1557b0 !important;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.3);
+}
+.nav-tabs {
+    border-bottom: none;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: center;
+    background: #f1f3f4;
+    border-radius: 10px;
+    padding: 4px;
+}
+.nav-tabs > li {
+    width: 50%;
+    text-align: center;
+}
+.nav-tabs > li > a {
+    border: none !important;
+    color: #5f6368;
+    font-weight: 600;
+    font-size: 14px;
+    background: transparent !important;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 0;
+    transition: all 0.2s;
+}
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+    color: #1a73e8 !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.form-group .btn {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    flex: 1;
+    margin: 0 5px;
+}
+.form-group .btn-info {
+    background-color: #f8f9fa !important;
+    color: #5f6368 !important;
+    border: 1px solid #e8eaed !important;
+}
+.form-group .btn-info:hover {
+    background-color: #f1f3f4 !important;
+    color: #202124 !important;
+}
+.form-group .btn-danger {
+    background-color: transparent !important;
+    color: #1a73e8 !important;
+    border: 1px solid #1a73e8 !important;
+}
+.form-group .btn-danger:hover {
+    background-color: rgba(26,115,232,0.05) !important;
+}
+.text-muted {
+    color: #9aa0a6 !important;
+}
+.btn-default.btn-icon {
+    border-radius: 50% !important;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+    background: white;
+    margin: 0 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-default.btn-icon:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+}
+</style>
 </head>
 <body>
 <div class="app app-header-fixed  ">

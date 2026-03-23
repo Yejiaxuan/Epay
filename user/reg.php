@@ -32,7 +32,120 @@ $_SESSION['csrf_token'] = $csrf_token;
 <link rel="stylesheet" href="<?php echo $cdnpublic?>font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" />
 <link rel="stylesheet" href="./assets/css/font.css" type="text/css" />
 <link rel="stylesheet" href="./assets/css/app.css" type="text/css" />
-<style>input:-webkit-autofill{-webkit-box-shadow:0 0 0px 1000px white inset;-webkit-text-fill-color:#333;}img.logo{width:14px;height:14px;margin:0 5px 0 3px;}</style>
+<style>
+/* Modern Auth UI Overrides */
+body {
+    background: linear-gradient(135deg, #f0f2f5 0%, #e9ecef 100%);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.app-header-fixed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+.w-xxl {
+    width: 420px;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 40px 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+.navbar-brand {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a73e8 !important;
+    text-align: center;
+    margin-bottom: 10px;
+    display: block;
+}
+.wrapper.text-center strong {
+    font-size: 15px;
+    color: #5f6368;
+    font-weight: 500;
+}
+.list-group-sm {
+    border-radius: 12px;
+    box-shadow: none;
+    border: 1px solid #e8eaed;
+    overflow: hidden;
+    margin-top: 15px;
+}
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #e8eaed;
+    padding: 16px 20px;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
+.form-control.no-border {
+    font-size: 15px;
+    color: #202124;
+    padding: 0;
+}
+.form-control.no-border::placeholder {
+    color: #9aa0a6;
+}
+.input-group-addon {
+    background: transparent;
+    border: none;
+    color: #1a73e8;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0 0 0 15px;
+}
+.input-group-addon:hover {
+    color: #1557b0;
+    text-decoration: none;
+}
+.btn-primary {
+    background-color: #1a73e8 !important;
+    border-color: #1a73e8 !important;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px;
+    margin-top: 25px;
+    transition: all 0.2s;
+}
+.btn-primary:hover {
+    background-color: #1557b0 !important;
+    border-color: #1557b0 !important;
+    box-shadow: 0 4px 12px rgba(26,115,232,0.3);
+}
+.btn-default {
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px;
+    background-color: #f8f9fa !important;
+    color: #5f6368 !important;
+    border: 1px solid #e8eaed !important;
+    transition: all 0.2s;
+    margin-top: 15px;
+}
+.btn-default:hover {
+    background-color: #f1f3f4 !important;
+    color: #202124 !important;
+}
+.i-checks i {
+    border-color: #c0c4cc;
+}
+.i-checks input:checked + i {
+    border-color: #1a73e8;
+}
+.i-checks input:checked + i:before {
+    background-color: #1a73e8;
+}
+.text-muted {
+    color: #9aa0a6 !important;
+}
+img.logo{width:14px;height:14px;margin:0 5px 0 3px;}
+</style>
 </head>
 <body>
 
