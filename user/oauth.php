@@ -6,20 +6,31 @@ $nosession=true;
 include("../includes/common.php");
 if($conf['login_alipay']==0)sysmsg("未开启支付宝快捷登录");
 
-if(isset($_GET['sid'])){
-	$sid = trim(daddslashes($_GET['sid']));
-	if(!preg_match('/^(.[a-zA-Z0-9]+)$/',$sid))exit("Access Denied");
-	session_id($sid);
-}
 session_start();
-// 防止会话固定攻击：外部传入 sid 时立即重新生成
+$relay_sid = null;
 if(isset($_GET['sid'])){
-	session_regenerate_id(true);
+	$relay_sid = trim(daddslashes($_GET['sid']));
+	if(!preg_match('/^[a-f0-9]{64}$/', $relay_sid))exit("Access Denied");
 }
 
 if(isset($_GET['act']) && $_GET['act']=='login'){
+	$alipay_uid = null;
 	if(isset($_SESSION['alipay_uid']) && !empty($_SESSION['alipay_uid'])){
 		$alipay_uid = daddslashes($_SESSION['alipay_uid']);
+		unset($_SESSION['alipay_uid']);
+	}elseif(isset($_SESSION['oauth_sid'])){
+		$cachekey = 'scan_oauth_'.$_SESSION['oauth_sid'];
+		$scaninfo = $CACHE->read($cachekey);
+		if($scaninfo){
+			$scaninfo = @unserialize($scaninfo);
+			if(is_array($scaninfo) && !empty($scaninfo['alipay_uid'])){
+				$alipay_uid = daddslashes($scaninfo['alipay_uid']);
+				$CACHE->delete($cachekey);
+				unset($_SESSION['oauth_sid']);
+			}
+		}
+	}
+	if(!empty($alipay_uid)){
 		$userrow=$DB->getRow("SELECT * FROM pre_user WHERE alipay_uid='{$alipay_uid}' limit 1");
 		if($userrow){
 			$uid=$userrow['uid'];
@@ -30,7 +41,7 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
 			$session=md5($uid.$key.$password_hash);
 			$expiretime=time()+2592000;
 			$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-			setcookie("user_token", $token, time() + 2592000, '/', null, null, true);
+			setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 			$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 			$result=array("code"=>0,"msg"=>"登录成功！正在跳转到用户中心","url"=>"./");
 		}elseif($islogin2==1){
@@ -40,7 +51,6 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
 			$_SESSION['Oauth_alipay_uid']=$alipay_uid;
 			$result=array("code"=>0,"msg"=>"请输入商户ID和密钥完成绑定和登录","url"=>"./login.php?connect=true");
 		}
-		unset($_SESSION['alipay_uid']);
 	}else{
 		$result=array("code"=>1);
 	}
@@ -74,6 +84,11 @@ if(isset($_GET['auth_code'])){
 			exit("<script language='javascript'>window.location.replace('{$redirect_uri}?userid={$user_id}&usertype={$user_type}&appid={$channel['appid']}');</script>");
 		}
 	}
+	if($relay_sid){
+		$CACHE->save('scan_oauth_'.$relay_sid, ['alipay_uid'=>$user_id], 600);
+		@header('Content-Type: text/html; charset=UTF-8');
+		exit("<script language='javascript'>alert('扫码成功，请返回电脑端继续操作');if(window.AlipayJSBridge){AlipayJSBridge.call('popWindow');}else{window.close();}</script>");
+	}
 	$_SESSION['alipay_uid'] = $user_id;
 
 	$userrow=$DB->getRow("SELECT * FROM pre_user WHERE alipay_uid=:user_id limit 1", [':user_id'=>$user_id]);
@@ -88,7 +103,7 @@ if(isset($_GET['auth_code'])){
 		$session=md5($uid.$key.$password_hash);
 		$expiretime=time()+2592000;
 		$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-		setcookie("user_token", $token, time() + 2592000, '/', null, null, true);
+		setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 		@header('Content-Type: text/html; charset=UTF-8');
 		exit("<script language='javascript'>window.location.href='./';</script>");
 	}elseif($islogin2==1){
@@ -112,10 +127,12 @@ if(isset($_GET['auth_code'])){
 	$alipay_config = require(PLUGIN_ROOT.$channel['plugin'].'/inc/config.php');
 	$oauth = new \Alipay\AlipayOauthService($alipay_config);
 	$redirect_uri = $siteurl.'user/oauth.php';
+	if($relay_sid) $redirect_uri .= '?sid='.$relay_sid;
 	$oauth->oauth($redirect_uri, isset($_GET['state'])?trim($_GET['state']):null);
 }else{
 
-$code_url = $siteurl.'user/oauth.php?sid='.session_id();
+$_SESSION['oauth_sid'] = generate_csrf_token();
+$code_url = $siteurl.'user/oauth.php?sid='.$_SESSION['oauth_sid'];
 if(isset($_GET['bind'])){
 	$code_url .= '&bind=1';
 }

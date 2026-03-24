@@ -450,7 +450,7 @@ case 'addUser':
 	$uid = $DB->insert('user', $data);
 	if($uid!==false){
 		if(!empty($_POST['pwd'])){
-			$pwd = getMd5Pwd(trim($_POST['pwd']), $uid);
+			$pwd = hash_user_password(trim($_POST['pwd']));
 			$DB->update('user', ['pwd'=>$pwd], ['uid'=>$uid]);
 		}
 		exit(json_encode(['code'=>0, 'uid'=>$uid, 'key'=>$key]));
@@ -492,7 +492,7 @@ case 'editUser':
 
 	if($DB->update('user', $data, ['uid'=>$uid])!==false){
 		if(!empty($_POST['pwd'])){
-			$pwd = getMd5Pwd(trim($_POST['pwd']), $uid);
+			$pwd = hash_user_password(trim($_POST['pwd']));
 			$DB->update('user', ['pwd'=>$pwd], ['uid'=>$uid]);
 		}
 		exit('{"code":0}');

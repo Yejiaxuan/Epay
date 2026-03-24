@@ -34,22 +34,23 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
     }
     $password = $plain;
   }
-  $is_bcrypt = (strlen($conf['admin_pwd']) === 60 && substr($conf['admin_pwd'], 0, 4) === '$2y$');
+  $is_bcrypt = is_bcrypt_hash($conf['admin_pwd']);
   if($username == $conf['admin_user'] && (
-    ($is_bcrypt && password_verify($password, $conf['admin_pwd'])) ||
-    (!$is_bcrypt && $password === $conf['admin_pwd'])
+    ($is_bcrypt && secure_password_verify($password, $conf['admin_pwd'])) ||
+    (!$is_bcrypt && hash_equals((string)$conf['admin_pwd'], $password))
   )){
     // 如果是明文密码匹配，自动升级为哈希存储
     if (!$is_bcrypt) {
-      saveSetting('admin_pwd', password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]));
+      $newhash = secure_password_hash($password);
+      saveSetting('admin_pwd', $newhash);
       $CACHE->clear();
-      $conf['admin_pwd'] = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+      $conf['admin_pwd'] = $newhash;
     }
     $DB->insert('log', ['uid'=>0, 'type'=>'登录后台', 'date'=>'NOW()', 'ip'=>$clientip]);
 		$session=md5($username.$conf['admin_pwd'].$password_hash);
 		$expiretime=time() + 2592000;
 		$token=authcode("{$username}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-		setcookie("admin_token", $token, $expiretime, null, null, null, true);
+		setcookie("admin_token", $token, $expiretime, '/admin', null, is_https(), true);
     unset($_SESSION['vc_code']);
     exit(json_encode(['code'=>0]));
   }else{
@@ -67,7 +68,7 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
   }
 }elseif(isset($_GET['logout'])){
 	if(!checkRefererHost())exit();
-	setcookie("admin_token", "", time() - 2592000);
+	setcookie("admin_token", "", time() - 2592000, '/admin', null, is_https(), true);
 	exit("<script language='javascript'>window.location.href='./login.php';</script>");
 }elseif($islogin==1){
 	exit("<script language='javascript'>alert('您已登录！');window.location.href='./';</script>");

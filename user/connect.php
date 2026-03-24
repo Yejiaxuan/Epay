@@ -18,14 +18,14 @@ if(isset($_GET['act']) && $_GET['act']=='qrlogin' && $conf['login_qq']==2){
 			$session=md5($uid.$key.$password_hash);
 			$expiretime=time()+2592000;
 			$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-			setcookie("user_token", $token, time() + 2592000);
+			setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 			$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 			$result=array("code"=>0,"msg"=>"登录成功！正在跳转到用户中心","url"=>"./");
 		}elseif($islogin2==1){
 			$sds=$DB->exec("update `pre_user` set `qq_uid`=:qq where `uid`=:uid", [':qq'=>$qq, ':uid'=>$uid]);
 			$result=array("code"=>0,"msg"=>"已成功绑定QQ账号！","url"=>"./editinfo.php");
 		}else{
-			$_SESSION['Oauth_qq_uid']=$openId;
+			$_SESSION['Oauth_qq_uid']=$qq;
 			$result=array("code"=>0,"msg"=>"请输入商户ID和密钥完成绑定和登录","url"=>"./login.php?connect=true");
 		}
 	}else{
@@ -86,7 +86,7 @@ if($_GET['code'] && ($conf['login_qq']==1 || $conf['login_qq']==3 || $conf['logi
 		$session=md5($uid.$key.$password_hash);
 		$expiretime=time()+2592000;
 		$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-		setcookie("user_token", $token, time() + 2592000);
+		setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 		$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 		exit("<script language='javascript'>window.location.href='./';</script>");
 	}elseif($islogin2==1){

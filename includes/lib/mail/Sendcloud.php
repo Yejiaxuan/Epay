@@ -11,7 +11,7 @@ class Sendcloud {
     }
 	public function send($to, $sub, $msg, $from, $from_name){
 		if(empty($this->apiUser)||empty($this->apiKey))return false;
-		$url='http://api.sendcloud.net/apiv2/mail/send';
+		$url='https://api.sendcloud.net/apiv2/mail/send';
 		$data=array(
 			'apiUser' => $this->apiUser,
 			'apiKey' => $this->apiKey,
@@ -25,6 +25,8 @@ class Sendcloud {
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 		$json=curl_exec($ch);
 		curl_close($ch);
 		$arr=json_decode($json,true);

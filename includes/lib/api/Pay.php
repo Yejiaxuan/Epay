@@ -59,6 +59,8 @@ class Pay
         if($money<=0 || !is_numeric($money) || !preg_match('/^[0-9.]+$/', $money))sysmsg('金额不合法');
         if(!empty($cert_no) && !is_idcard($cert_no)) sysmsg('身份证号码格式不正确');
         if(!empty($min_age) && (!is_numeric($min_age) || $min_age < 0)) sysmsg('最低年龄格式不正确');
+        if(!callback_url_is_valid($notify_url, true))sysmsg('通知地址(notify_url)不合法');
+        if(!callback_url_is_valid($return_url))sysmsg('回调地址(return_url)不合法');
         $cert_info = null;
         if(!empty($cert_no) || !empty($cert_name) || !empty($min_age)){
             $cert_info = json_encode(['cert_no'=>$cert_no, 'cert_name'=>$cert_name, 'min_age'=>$min_age], JSON_UNESCAPED_UNICODE);
@@ -312,6 +314,8 @@ class Pay
         }
         if(!empty($cert_no) && !is_idcard($cert_no)) echojsonmsg('身份证号码格式不正确');
         if(!empty($min_age) && (!is_numeric($min_age) || $min_age < 0)) echojsonmsg('最低年龄格式不正确');
+        if(!callback_url_is_valid($notify_url, true))echojsonmsg('通知地址(notify_url)不合法');
+        if(!empty($return_url) && !callback_url_is_valid($return_url))echojsonmsg('回调地址(return_url)不合法');
         $cert_info = null;
         if(!empty($cert_no) || !empty($cert_name) || !empty($min_age)){
             $cert_info = json_encode(['cert_no'=>$cert_no, 'cert_name'=>$cert_name, 'min_age'=>$min_age], JSON_UNESCAPED_UNICODE);

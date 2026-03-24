@@ -477,10 +477,10 @@ case 'edit_pwd':
 	$newpwd=trim($_POST['newpwd']);
 	$newpwd2=trim($_POST['newpwd2']);
 
-	if(!empty($userrow['pwd']) && $oldpwd==null || $newpwd==null || $newpwd2==null){
+	if((!empty($userrow['pwd']) && $oldpwd==='') || $newpwd==='' || $newpwd2===''){
 		exit('{"code":-1,"msg":"请确保每项都不为空"}');
 	}
-	if(!empty($userrow['pwd']) && getMd5Pwd($oldpwd, $uid)!=$userrow['pwd']){
+	if(!empty($userrow['pwd']) && !verify_user_password($oldpwd, $userrow['pwd'], $uid)){
 		exit('{"code":-1,"msg":"旧密码不正确"}');
 	}
 	if($newpwd!=$newpwd2){
@@ -498,8 +498,8 @@ case 'edit_pwd':
 	}elseif (is_numeric($newpwd)) {
 		exit('{"code":-1,"msg":"新密码不能为纯数字"}');
 	}
-	$pwd = getMd5Pwd($newpwd, $uid);
-	$sqs=$DB->exec("update `pre_user` set `pwd` ='{$pwd}' where `uid`='$uid'");
+	$pwd_hash = hash_user_password($newpwd);
+	$sqs=$DB->update('user', ['pwd'=>$pwd_hash], ['uid'=>$uid]);
 	if($sqs!==false){
 		exit('{"code":1,"msg":"修改密码成功！请牢记新密码"}');
 	}else{
@@ -511,7 +511,7 @@ case 'edit_codename':
 
 	$msg = '';
 	if(!empty($userrow['voice_devid'])){
-		$url = 'http://iot.solomo-info.com:9306/admin/common/msgpush';
+		$url = getVoicePushUrl();
 	        $param = [
 	            'agent_id' => $conf['voice_username'],
 	            'agent_secret' => $conf['voice_apikey'],
@@ -1200,7 +1200,7 @@ case 'refund_submit': //确认退款
 	$pwd=trim($_POST['pwd']);
 	$money = trim($_POST['money']);
 	if(!is_numeric($money) || !preg_match('/^[0-9.]+$/', $money))exit('{"code":-1,"msg":"金额输入错误"}');
-	if(getMd5Pwd($pwd, $userrow['uid'])!=$userrow['pwd'])
+	if(!verify_user_password($pwd, $userrow['pwd'], $userrow['uid']))
 		exit('{"code":-1,"msg":"登录密码输入错误！"}');
 	
 	$refund_no = date("YmdHis").rand(11111,99999);

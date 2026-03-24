@@ -159,7 +159,7 @@ case 'settle_save':
 		exit('{"code":-1,"msg":"修改记录失败！'.$DB->error().'"}');
 break;
 case 'paypwd_check':
-	if(isset($_SESSION['paypwd']) && $_SESSION['paypwd']==$conf['admin_paypwd'])
+	if(isset($_SESSION['paypwd_token']) && hash_equals($_SESSION['paypwd_token'], md5($conf['admin_paypwd'].$password_hash)))
 		exit('{"code":0,"msg":"ok"}');
 	else
 		exit('{"code":-1,"msg":"error"}');
@@ -167,15 +167,21 @@ break;
 case 'paypwd_input':
 	$paypwd=trim($_POST['paypwd']);
 	if(!$conf['admin_paypwd'])exit('{"code":-1,"msg":"你还未设置支付密码"}');
-	if($paypwd == $conf['admin_paypwd']){
-		$_SESSION['paypwd'] = $paypwd;
+	if(verify_hashed_or_plaintext_password($paypwd, $conf['admin_paypwd'])){
+		if(stored_password_needs_rehash($conf['admin_paypwd'])){
+			$newhash = secure_password_hash($paypwd);
+			saveSetting('admin_paypwd', $newhash);
+			$CACHE->clear();
+			$conf['admin_paypwd'] = $newhash;
+		}
+		$_SESSION['paypwd_token'] = md5($conf['admin_paypwd'].$password_hash);
 		exit('{"code":0,"msg":"ok"}');
 	}else{
 		exit('{"code":-1,"msg":"支付密码错误！"}');
 	}
 break;
 case 'paypwd_reset':
-	unset($_SESSION['paypwd']);
+	unset($_SESSION['paypwd_token']);
 	exit('{"code":0,"msg":"ok"}');
 break;
 
@@ -184,7 +190,7 @@ case 'transfer':
 	$type = isset($_POST['type'])?intval($_POST['type']):exit('{"code":-1,"msg":"type不能为空"}');
 	$channelid = isset($_POST['channel'])?intval($_POST['channel']):0;
 
-	if(!isset($_SESSION['paypwd']) || $_SESSION['paypwd']!==$conf['admin_paypwd'])exit('{"code":-1,"msg":"支付密码错误，请返回重新进入该页面"}');
+	if(!isset($_SESSION['paypwd_token']) || !hash_equals($_SESSION['paypwd_token'], md5($conf['admin_paypwd'].$password_hash)))exit('{"code":-1,"msg":"支付密码错误，请返回重新进入该页面"}');
 
 	$row=$DB->getRow("SELECT * FROM pre_settle WHERE id='{$id}' limit 1");
 	if(!$row)exit('{"code":-1,"msg":"记录不存在"}');

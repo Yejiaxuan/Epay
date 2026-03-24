@@ -28,6 +28,12 @@ function curl_get($url)
 	$httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
 	$httpheader[] = "Connection: close";
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
+	if(defined('CURLOPT_PROTOCOLS') && defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')){
+		curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+	}
+	if(defined('CURLOPT_REDIR_PROTOCOLS') && defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')){
+		curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+	}
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -76,11 +82,77 @@ function get_curl($url, $post=0, $referer=0, $cookie=0, $header=0, $ua=0, $nobao
 	if ($location) {
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	}
+	if(defined('CURLOPT_PROTOCOLS') && defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')){
+		curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+	}
+	if(defined('CURLOPT_REDIR_PROTOCOLS') && defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')){
+		curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+	}
 	curl_setopt($ch, CURLOPT_ENCODING, "gzip");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	$ret = curl_exec($ch);
 	curl_close($ch);
 	return $ret;
+}
+
+function curl_get_public($url)
+{
+	global $conf;
+	if(!callback_url_is_valid($url, true)){
+		return false;
+	}
+	$parts = parse_url($url);
+	$host = $parts['host'];
+	$port = isset($parts['port']) ? intval($parts['port']) : (strtolower($parts['scheme']) === 'https' ? 443 : 80);
+	$resolved_ip = resolve_public_host_ip($host);
+	if($resolved_ip === false){
+		return false;
+	}
+
+	$ch=curl_init($url);
+	if($conf['proxy'] == 1){
+		$proxy_server = $conf['proxy_server'];
+		$proxy_port = intval($conf['proxy_port']);
+		if($conf['proxy_type'] == 'https'){
+			$proxy_type = CURLPROXY_HTTPS;
+		}elseif($conf['proxy_type'] == 'sock4'){
+			$proxy_type = CURLPROXY_SOCKS4;
+		}elseif($conf['proxy_type'] == 'sock5'){
+			$proxy_type = CURLPROXY_SOCKS5;
+		}else{
+			$proxy_type = CURLPROXY_HTTP;
+		}
+		curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
+		curl_setopt($ch, CURLOPT_PROXY, $proxy_server);
+		curl_setopt($ch, CURLOPT_PROXYPORT, $proxy_port);
+		if(!empty($conf['proxy_user']) && !empty($conf['proxy_pwd'])){
+			$proxy_userpwd = $conf['proxy_user'].':'.$conf['proxy_pwd'];
+			curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxy_userpwd);
+		}
+		curl_setopt($ch, CURLOPT_PROXYTYPE, $proxy_type);
+	}
+	$httpheader[] = "Accept: */*";
+	$httpheader[] = "Accept-Language: zh-CN,zh;q=0.8";
+	$httpheader[] = "Connection: close";
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
+	if(defined('CURLOPT_PROTOCOLS') && defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')){
+		curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+	}
+	if(defined('CURLOPT_REDIR_PROTOCOLS') && defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')){
+		curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+	}
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
+	curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+	if(strtolower($host) !== strtolower($resolved_ip) && defined('CURLOPT_RESOLVE')){
+		curl_setopt($ch, CURLOPT_RESOLVE, [$host.':'.$port.':'.$resolved_ip]);
+	}
+	$content=curl_exec($ch);
+	curl_close($ch);
+	return $content;
 }
 function real_ip($type=0){
 	$ip = $_SERVER['REMOTE_ADDR'];
@@ -144,6 +216,15 @@ function send_mail($to, $sub, $msg) {
 			return $mail->ErrorInfo;
 		}
 	}
+}
+
+function getVoicePushUrl() {
+	global $conf;
+	$url = !empty($conf['voice_apiurl']) ? trim($conf['voice_apiurl']) : '';
+	if(empty($url)){
+		$url = 'https://iot.solomo-info.com:9306/admin/common/msgpush';
+	}
+	return $url;
 }
 function send_sms($phone, $code, $scene='reg'){
 	global $conf;
@@ -537,7 +618,10 @@ function get_main_host($url){
 }
 
 function do_notify($url){
-	$return = curl_get($url);
+	$return = curl_get_public($url);
+	if($return === false){
+		return false;
+	}
 	if(strpos($return,'success')!==false || strpos($return,'SUCCESS')!==false || strpos($return,'Success')!==false){
 		return true;
 	}else{
@@ -595,12 +679,12 @@ function processOrder(&$srow,$notify=true){
 			$paystatus = $conf['user_review']==1?2:1;
 			$sds=$DB->exec("INSERT INTO `pre_user` (`upid`, `key`, `money`, `email`, `phone`, `addtime`, `pay`, `settle`, `keylogin`, `apply`, `status`) VALUES (:upid, :key, '0.00', :email, :phone, NOW(), :paystatus, 1, 0, 0, 1)", [':upid'=>$info['upid'], ':key'=>$key, ':email'=>$info['email'], ':phone'=>$info['phone'], ':paystatus'=>$paystatus]);
 			$uid=$DB->lastInsertId();
-			$pwd = getMd5Pwd($info['pwd'], $uid);
-			$DB->exec("UPDATE `pre_user` SET `pwd`='{$pwd}' WHERE `uid`='$uid'");
+			$pwd = is_bcrypt_hash($info['pwd']) ? $info['pwd'] : hash_user_password($info['pwd']);
+			$DB->update('user', ['pwd'=>$pwd], ['uid'=>$uid]);
 			if($sds){
 				if(!empty($info['email'])){
 					$sub = $conf['sitename'].' - 注册成功通知';
-					$msg = '<h2>商户注册成功通知</h2>感谢您注册'.$conf['sitename'].'！<br/>您的登录账号：'.$info['email'].'<br/>您的商户ID：'.$uid.'<br/>您的商户秘钥：'.$key.'<br/>'.$conf['sitename'].'官网：<a href="http://'.$_SERVER['HTTP_HOST'].'/" target="_blank">'.$_SERVER['HTTP_HOST'].'</a><br/>【<a href="http://'.$_SERVER['HTTP_HOST'].'/user/" target="_blank">商户管理后台</a>】';
+					$msg = '<h2>商户注册成功通知</h2>感谢您注册'.$conf['sitename'].'！<br/>您的登录账号：'.$info['email'].'<br/>您的商户ID：'.$uid.'<br/>您的商户秘钥：'.$key.'<br/>'.$conf['sitename'].'官网：<a href="'.$siteurl.'" target="_blank">'.$siteurl.'</a><br/>【<a href="'.$siteurl.'user/" target="_blank">商户管理后台</a>】';
 					send_mail($info['email'], $sub, $msg);
 				}
 				if(isset($info['invitecodeid']) && $info['invitecodeid']>0){
@@ -1024,6 +1108,20 @@ function wechat_applet_oauth($code, $wxinfo){
 
 function checkDomain($domain){
 	if(empty($domain) || !preg_match('/^[-$a-z0-9:_*.]{2,512}$/i', $domain) || (stripos($domain, '.') === false) || substr($domain, -1) == '.' || substr($domain, 0 ,1) == '.' || substr($domain, 0 ,1) == '*' && substr($domain, 1 ,1) != '.' || substr_count($domain, '*')>1 || strpos($domain, '*')>0 || strlen($domain)<4) return false;
+	$check_host = $domain;
+	if(substr($check_host, 0, 2) === '*.'){
+		$check_host = substr($check_host, 2);
+	}
+	if(substr_count($check_host, ':') === 1 && preg_match('/:\d+$/', $check_host)){
+		$check_host = substr($check_host, 0, strrpos($check_host, ':'));
+	}
+	$check_host = strtolower(trim($check_host, '[]'));
+	if($check_host === 'localhost' || substr($check_host, -6) === '.local' || substr($check_host, -12) === '.localdomain'){
+		return false;
+	}
+	if(filter_var($check_host, FILTER_VALIDATE_IP) && !is_public_ip_address($check_host)){
+		return false;
+	}
 	return true;
 }
 

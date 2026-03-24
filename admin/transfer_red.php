@@ -12,7 +12,14 @@ $app = isset($_GET['app'])?$_GET['app']:'alipay';
 if(isset($_POST['submit'])){
 	if(!checkRefererHost())exit();
 	$out_biz_no = trim($_POST['out_biz_no']);
-	if(!isset($_POST['paypwd']) || $_POST['paypwd']!==$conf['admin_paypwd'])showmsg('支付密码错误',3);
+	$paypwd = isset($_POST['paypwd']) ? trim($_POST['paypwd']) : '';
+	if(!verify_hashed_or_plaintext_password($paypwd, $conf['admin_paypwd']))showmsg('支付密码错误',3);
+	if(stored_password_needs_rehash($conf['admin_paypwd'])){
+		$newhash = secure_password_hash($paypwd);
+		saveSetting('admin_paypwd', $newhash);
+		$CACHE->clear();
+		$conf['admin_paypwd'] = $newhash;
+	}
 	$money = trim($_POST['money']);
 	$desc = htmlspecialchars(trim($_POST['desc']));
 	if(empty($out_biz_no) || empty($money))showmsg('必填项不能为空',3);

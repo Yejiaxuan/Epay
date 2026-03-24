@@ -83,7 +83,7 @@ class MsgNotice
      */
     public static function send_voice($devid, $type, $money){
         global $conf, $CACHE;
-        $url = 'http://iot.solomo-info.com:9306/admin/common/msgpush';
+        $url = getVoicePushUrl();
         $param = [
             'agent_id' => $conf['voice_username'],
             'agent_secret' => $conf['voice_apikey'],

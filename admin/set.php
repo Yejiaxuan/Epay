@@ -197,11 +197,11 @@ $("select[name='homepage']").change(function(){
 	$newpwd=trim($_POST['newpwd']);
 	$newpwd2=trim($_POST['newpwd2']);
 	if(!empty($newpwd) && !empty($newpwd2)){
-		if($oldpwd!=$conf['admin_paypwd'])showmsg('旧密码不正确！',3);
+		if(!empty($conf['admin_paypwd']) && !verify_hashed_or_plaintext_password($oldpwd, $conf['admin_paypwd']))showmsg('旧密码不正确！',3);
 		if($newpwd!=$newpwd2)showmsg('两次输入的密码不一致！',3);
 		if(strlen($newpwd)<6)showmsg('密码不能少于6位',3);
 		if(strlen($newpwd)>100)showmsg('密码位数过长',3);
-		saveSetting('admin_paypwd',$newpwd);
+		saveSetting('admin_paypwd', secure_password_hash($newpwd));
 	}else{
 		showmsg('新密码不能为空',3);
 	}
@@ -215,12 +215,16 @@ $("select[name='homepage']").change(function(){
 	$newpwd=trim($_POST['newpwd']);
 	$newpwd2=trim($_POST['newpwd2']);
 	if($user==null)showmsg('用户名不能为空！',3);
-	saveSetting('admin_user',$user);
 	if(!empty($newpwd) && !empty($newpwd2)){
-		if(!password_verify($oldpwd, $conf['admin_pwd']) && $oldpwd!=$conf['admin_pwd'])showmsg('旧密码不正确！',3);
+		if(is_bcrypt_hash($conf['admin_pwd'])){
+			if(!password_verify($oldpwd, $conf['admin_pwd']))showmsg('旧密码不正确！',3);
+		}else{
+			if(!hash_equals((string)$conf['admin_pwd'], $oldpwd))showmsg('旧密码不正确！',3);
+		}
 		if($newpwd!=$newpwd2)showmsg('两次输入的密码不一致！',3);
-		saveSetting('admin_pwd', password_hash($newpwd, PASSWORD_BCRYPT, ['cost' => 12]));
+		saveSetting('admin_pwd', secure_password_hash($newpwd));
 	}
+	saveSetting('admin_user',$user);
 	$ad=$CACHE->clear();
 	if($ad)showmsg('修改成功！请重新登录',1);
 	else showmsg('修改失败！<br/>'.$DB->error(),4);

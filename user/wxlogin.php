@@ -7,20 +7,31 @@ $nosession=true;
 include("../includes/common.php");
 if($conf['login_wx']==0)sysmsg("未开启微信快捷登录");
 
-if(isset($_GET['sid'])){
-	$sid = trim(daddslashes($_GET['sid']));
-	if(!preg_match('/^(.[a-zA-Z0-9]+)$/',$sid))exit("Access Denied");
-	session_id($sid);
-}
 session_start();
-// 防止会话固定攻击：外部传入 sid 时立即重新生成
+$relay_sid = null;
 if(isset($_GET['sid'])){
-	session_regenerate_id(true);
+	$relay_sid = trim(daddslashes($_GET['sid']));
+	if(!preg_match('/^[a-f0-9]{64}$/', $relay_sid))exit("Access Denied");
 }
 
 if(isset($_GET['act']) && $_GET['act']=='login'){
+	$openId = null;
 	if(isset($_SESSION['openid']) && !empty($_SESSION['openid'])){
 		$openId = daddslashes($_SESSION['openid']);
+		unset($_SESSION['openid']);
+	}elseif(isset($_SESSION['wxlogin_sid'])){
+		$cachekey = 'scan_wxlogin_'.$_SESSION['wxlogin_sid'];
+		$scaninfo = $CACHE->read($cachekey);
+		if($scaninfo){
+			$scaninfo = @unserialize($scaninfo);
+			if(is_array($scaninfo) && !empty($scaninfo['openid'])){
+				$openId = daddslashes($scaninfo['openid']);
+				$CACHE->delete($cachekey);
+				unset($_SESSION['wxlogin_sid']);
+			}
+		}
+	}
+	if(!empty($openId)){
 		$userrow=$DB->getRow("SELECT * FROM pre_user WHERE wx_uid='{$openId}' LIMIT 1");
 		if($userrow){
 			$uid=$userrow['uid'];
@@ -31,7 +42,7 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
 			$session=md5($uid.$key.$password_hash);
 			$expiretime=time()+2592000;
 			$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-			setcookie("user_token", $token, time() + 2592000, '/', null, null, true);
+			setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 			$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 			$result=array("code"=>0,"msg"=>"登录成功！正在跳转到用户中心","url"=>"./");
 		}elseif($islogin2==1){
@@ -41,7 +52,6 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
 			$_SESSION['Oauth_wx_uid']=$openId;
 			$result=array("code"=>0,"msg"=>"请输入商户ID和密钥完成绑定和登录","url"=>"./login.php?connect=true");
 		}
-		unset($_SESSION['openid']);
 	}else{
 		$result=array("code"=>1);
 	}
@@ -49,9 +59,11 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
 }
 
 if(!empty($conf['localurl_wxpay']) && !strpos($conf['localurl_wxpay'],$_SERVER['HTTP_HOST'])){
-	$code_url = $conf['localurl_wxpay'].'user/wxlogin.php?sid='.session_id();
+	$_SESSION['wxlogin_sid'] = generate_csrf_token();
+	$code_url = $conf['localurl_wxpay'].'user/wxlogin.php?sid='.$_SESSION['wxlogin_sid'];
 }else{
-	$code_url = $siteurl.'user/wxlogin.php?sid='.session_id();
+	$_SESSION['wxlogin_sid'] = generate_csrf_token();
+	$code_url = $siteurl.'user/wxlogin.php?sid='.$_SESSION['wxlogin_sid'];
 }
 if(isset($_GET['bind'])){
 	$code_url .= '&bind=1';
@@ -78,6 +90,11 @@ try{
 }catch(Exception $e){
 	sysmsg($e->getMessage());
 }
+if($relay_sid){
+	$CACHE->save('scan_wxlogin_'.$relay_sid, ['openid'=>$openId], 600);
+	@header('Content-Type: text/html; charset=UTF-8');
+	exit("<script language='javascript'>alert('扫码成功，请返回电脑端继续操作');if(typeof WeixinJSBridge!=='undefined'){WeixinJSBridge.call('closeWindow');}else{window.close();}</script>");
+}
 $_SESSION['openid'] = $openId;
 
 	$userrow=$DB->getRow("SELECT * FROM pre_user WHERE wx_uid='{$openId}' limit 1");
@@ -88,7 +105,7 @@ $_SESSION['openid'] = $openId;
 		$session=md5($uid.$key.$password_hash);
 		$expiretime=time()+604800;
 		$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-		setcookie("user_token", $token, time() + 604800);
+		setcookie("user_token", $token, time() + 604800, '/', null, is_https(), true);
 		@header('Content-Type: text/html; charset=UTF-8');
 		exit("<script language='javascript'>window.location.href='./{$redirect_url}';</script>");
 	}elseif($islogin2==1){

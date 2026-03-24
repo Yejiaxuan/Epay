@@ -2,7 +2,7 @@
 
 class UmfService
 {
-	private $pay_req_url = 'http://pay.soopay.net/spay/pay/payservice.do';
+	private $pay_req_url = 'https://pay.soopay.net/spay/pay/payservice.do';
 	private $charset = 'UTF-8';
 	private $sign_type = 'RSA';
 	private $res_format = 'HTML';

@@ -1,13 +1,11 @@
 <?php
 $nosession=true;
 include("../includes/common.php");
+session_start();
+$relay_sid = null;
 if(isset($_GET['sid'])){
-	$sid = trim(daddslashes($_GET['sid']));
-	if(!preg_match('/^(.[a-zA-Z0-9]+)$/',$sid))exit("Access Denied");
-	session_id($sid);
-	session_start();
-	// 防止会话固定攻击
-	session_regenerate_id(true);
+	$relay_sid = trim(daddslashes($_GET['sid']));
+	if(!preg_match('/^[a-f0-9]{64}$/', $relay_sid))exit("Access Denied");
 }
 
 @header('Content-Type: text/html; charset=UTF-8');
@@ -40,13 +38,17 @@ if($is_alipay){
 	$alipay_config = require(PLUGIN_ROOT.$channel['plugin'].'/inc/config.php');
 	$oauth = new \Alipay\AlipayOauthService($alipay_config);
 	$redirect_uri = $siteurl.'user/openid.php?channel='.$channelid;
-	if($sid) $redirect_uri .= '&sid='.$sid;
+	if($relay_sid) $redirect_uri .= '&sid='.$relay_sid;
 	if(isset($_GET['app_auth_code'])){
 		try{
 			$result = $oauth->getAppToken($_GET['app_auth_code']);
-			$_SESSION['alipay_app_token'] = $result['app_auth_token'];
-			$_SESSION['alipay_app_id'] = $result['auth_app_id'];
-			$_SESSION['alipay_user_id'] = $result['user_id'];
+			if($relay_sid){
+				$CACHE->save('scan_openid_'.$relay_sid, ['alipay_app_token'=>$result['app_auth_token'], 'alipay_app_id'=>$result['auth_app_id'], 'alipay_user_id'=>$result['user_id']], 600);
+			}else{
+				$_SESSION['alipay_app_token'] = $result['app_auth_token'];
+				$_SESSION['alipay_app_id'] = $result['auth_app_id'];
+				$_SESSION['alipay_user_id'] = $result['user_id'];
+			}
 			$openid_name = 'AppAuthToken';
 			$openid_content = $result['app_auth_token'];
 		}catch(Exception $e){
@@ -62,7 +64,11 @@ if($is_alipay){
 				$user_id = $result['open_id'];
 				$openid_name = '支付宝OpenId';
 			}
-			$_SESSION['alipay_user_id'] = $user_id;
+			if($relay_sid){
+				$CACHE->save('scan_openid_'.$relay_sid, ['alipay_user_id'=>$user_id], 600);
+			}else{
+				$_SESSION['alipay_user_id'] = $user_id;
+			}
 			$openid_content = $user_id;
 		}catch(Exception $e){
 			sysmsg('支付宝快捷登录失败！'.$e->getMessage());
@@ -87,7 +93,11 @@ if($is_alipay){
 		sysmsg($e->getMessage());
 	}
 	
-	$_SESSION['openid'] = $openId;
+	if($relay_sid){
+		$CACHE->save('scan_openid_'.$relay_sid, ['openid'=>$openId], 600);
+	}else{
+		$_SESSION['openid'] = $openId;
+	}
 	
 	$openid_name = 'OpenId';
 	$openid_content = $openId;

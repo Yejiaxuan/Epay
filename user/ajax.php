@@ -68,7 +68,6 @@ case 'login':
 	if($type==1 && is_numeric($user) && strlen($user)<=6)$type=0;
 	if($type==1){
 		$userrow=$DB->getRow("SELECT * FROM pre_user WHERE email=:user OR phone=:user limit 1", [':user'=>$user]);
-		$pass=getMd5Pwd($pass, $userrow['uid']);
 	}else{
 		if($conf['close_keylogin']==1)exit('{"code":-1,"msg":"未开启密钥登录，请使用账号密码登录！"}');
 		$userrow=$DB->getRow("SELECT * FROM pre_user WHERE uid=:user limit 1", [':user'=>$user]);
@@ -76,8 +75,17 @@ case 'login':
 			exit('{"code":-1,"msg":"该商户未开启密钥登录，请使用账号密码登录！"}');
 		}
 	}
-	if($userrow && ($type==0 && $pass==$userrow['key'] || $type==1 && $pass==$userrow['pwd'])) {
+	$password_ok = $type==1 && $userrow && verify_user_password($pass, $userrow['pwd'], $userrow['uid']);
+	$key_ok = $type==0 && $userrow && $pass==$userrow['key'];
+	if($password_ok || $key_ok) {
 		$uid = $userrow['uid'];
+		if($password_ok && user_password_needs_rehash($userrow['pwd'])){
+			$newhash = hash_user_password($pass);
+			if($newhash !== false){
+				$DB->update('user', ['pwd'=>$newhash], ['uid'=>$uid]);
+				$userrow['pwd'] = $newhash;
+			}
+		}
 		if($alipay_uid=$_SESSION['Oauth_alipay_uid']){
 			$DB->update('user', ['alipay_uid'=>$alipay_uid], ['uid'=>$uid]);
 			unset($_SESSION['Oauth_alipay_uid']);
@@ -102,7 +110,7 @@ case 'login':
 		$expiretime=time()+604800;
 		$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
 		ob_clean();
-		setcookie("user_token", $token, time() + 2592000);
+		setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 		$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 		if(empty($userrow['account']) || empty($userrow['username'])){
 			$result=array("code"=>0,"user_token"=>$token,"msg"=>"登录成功！正在跳转到收款账号设置","url"=>"./editinfo.php?start=1");
@@ -132,7 +140,7 @@ case 'wxalogin':
 		$session=md5($uid.$key.$password_hash);
 		$expiretime=time()+2592000;
 		$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-		setcookie("user_token", $token, time() + 2592000);
+		setcookie("user_token", $token, time() + 2592000, '/', null, is_https(), true);
 		$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 		$result=array("code"=>0,"user_token"=>$token,"msg"=>"登录成功！");
 		exit(json_encode($result));
@@ -308,7 +316,9 @@ case 'reg':
 		if(!$DB->exec("INSERT INTO `pre_order` (`trade_no`,`out_trade_no`,`uid`,`tid`,`addtime`,`name`,`money`,`notify_url`,`return_url`,`domain`,`ip`,`status`) VALUES (:trade_no, :out_trade_no, :uid, 1, NOW(), :name, :money, :notify_url, :return_url, :domain, :clientip, 0)", [':trade_no'=>$trade_no, ':out_trade_no'=>$trade_no, ':uid'=>$conf['reg_pay_uid'], ':name'=>'商户申请', ':money'=>$conf['reg_pay_price'], ':notify_url'=>$return_url, ':return_url'=>$return_url, ':domain'=>$domain, ':clientip'=>$clientip]))
 			exit('{"code":-1,"msg":"创建订单失败，请返回重试！"}');
 
-		$cacheData = ['verifytype'=>$conf['verifytype'], 'email'=>$email, 'phone'=>$phone, 'pwd'=>$pwd, 'upid'=>$upid];
+		$pwd_hash = hash_user_password($pwd);
+		if($pwd_hash === false)exit('{"code":-1,"msg":"密码处理失败，请重试"}');
+		$cacheData = ['verifytype'=>$conf['verifytype'], 'email'=>$email, 'phone'=>$phone, 'pwd'=>$pwd_hash, 'upid'=>$upid];
 		if($inviterow) $cacheData['invitecodeid'] = $inviterow['id'];
 		$sds = $CACHE->save('reg_'.$trade_no ,$cacheData, 3600);
 		if($sds){
@@ -325,11 +335,12 @@ case 'reg':
 		$sds=$DB->exec("INSERT INTO `pre_user` (`upid`, `key`, `money`, `email`, `phone`, `addtime`, `pay`, `settle`, `keylogin`, `apply`, `status`) VALUES (:upid, :key, '0.00', :email, :phone, NOW(), :paystatus, 1, 0, 0, 1)", [':upid'=>$upid, ':key'=>$key, ':email'=>$email, ':phone'=>$phone, ':paystatus'=>$paystatus]);
 		$uid=$DB->lastInsertId();
 		if($sds){
-			$pwd = getMd5Pwd($pwd, $uid);
-			$DB->exec("update `pre_user` set `pwd` ='{$pwd}' where `uid`='$uid'");
+			$pwd_hash = hash_user_password($pwd);
+			$DB->update('user', ['pwd'=>$pwd_hash], ['uid'=>$uid]);
+			$account = !empty($email) ? $email : $phone;
 			if(!empty($email)){
 				$sub = $conf['sitename'].' - 注册成功通知';
-				$msg = '<h2>商户注册成功通知</h2>感谢您注册'.$conf['sitename'].'！<br/>您的登录账号：'.($info['email']?$info['email']:$info['phone']).'<br/>您的商户ID：'.$uid.'<br/>您的商户秘钥：'.$key.'<br/>'.$conf['sitename'].'官网：<a href="http://'.$_SERVER['HTTP_HOST'].'/" target="_blank">'.$_SERVER['HTTP_HOST'].'</a><br/>【<a href="'.$siteurl.'user/" target="_blank">商户管理后台</a>】';
+				$msg = '<h2>商户注册成功通知</h2>感谢您注册'.$conf['sitename'].'！<br/>您的登录账号：'.$account.'<br/>您的商户ID：'.$uid.'<br/>您的商户秘钥：'.$key.'<br/>'.$conf['sitename'].'官网：<a href="'.$siteurl.'" target="_blank">'.$siteurl.'</a><br/>【<a href="'.$siteurl.'user/" target="_blank">商户管理后台</a>】';
 				send_mail($email, $sub, $msg);
 			}
 			\lib\VerifyCode::void_code();
@@ -340,7 +351,7 @@ case 'reg':
 			$result=array("code"=>1,"msg"=>"申请商户成功！","uid"=>$uid,"key"=>$key);
 			unset($_SESSION['csrf_token']);
 			if($paystatus == 2){
-				\lib\MsgNotice::send('regaudit', 0, ['uid'=>$uid, 'account'=>$info['email']?$info['email']:$info['phone']]);
+				\lib\MsgNotice::send('regaudit', 0, ['uid'=>$uid, 'account'=>$account]);
 			}
 		}else{
 			$result=array("code"=>-1,"msg"=>"申请商户失败！".$DB->error());
@@ -434,8 +445,8 @@ case 'findpwd':
 	if($result !== true){
 		exit(json_encode(['code'=>-1, 'msg'=>$result]));
 	}
-	$pwd = getMd5Pwd($pwd, $userrow['uid']);
-	$sqs=$DB->exec("update `pre_user` set `pwd`='{$pwd}' where `uid`='{$userrow['uid']}'");
+	$pwd_hash = hash_user_password($pwd);
+	$sqs=$DB->update('user', ['pwd'=>$pwd_hash], ['uid'=>$userrow['uid']]);
 	if($sqs!==false){
 		\lib\VerifyCode::void_code();
 		exit('{"code":1,"msg":"重置密码成功！请牢记新密码"}');
@@ -445,18 +456,34 @@ case 'findpwd':
 break;
 case 'qrcode':
 	unset($_SESSION['openid']);
+	$scan_sid = generate_csrf_token();
+	$_SESSION['openid_sid'] = $scan_sid;
 	if(!empty($conf['localurl_wxpay']) && !strpos($conf['localurl_wxpay'],$_SERVER['HTTP_HOST'])){
-		$qrcode = $conf['localurl_wxpay'].'user/openid.php?sid='.session_id();
+		$qrcode = $conf['localurl_wxpay'].'user/openid.php?sid='.$scan_sid;
 	}else{
-		$qrcode = $siteurl.'user/openid.php?sid='.session_id();
+		$qrcode = $siteurl.'user/openid.php?sid='.$scan_sid;
 	}
 	$result=array("code"=>0,"msg"=>"succ","url"=>$qrcode);
 	exit(json_encode($result));
 	break;
 case 'getopenid':
+	$openid = null;
 	if(isset($_SESSION['openid']) && !empty($_SESSION['openid'])){
 		$openid = $_SESSION['openid'];
 		unset($_SESSION['openid']);
+	}elseif(isset($_SESSION['openid_sid'])){
+		$cachekey = 'scan_openid_'.$_SESSION['openid_sid'];
+		$scaninfo = $CACHE->read($cachekey);
+		if($scaninfo){
+			$scaninfo = @unserialize($scaninfo);
+			if(is_array($scaninfo) && !empty($scaninfo['openid'])){
+				$openid = $scaninfo['openid'];
+				$CACHE->delete($cachekey);
+				unset($_SESSION['openid_sid']);
+			}
+		}
+	}
+	if($openid !== null){
 		$result=array("code"=>0,"msg"=>"succ","openid"=>$openid);
 	}else{
 		$result=array("code"=>-1);
