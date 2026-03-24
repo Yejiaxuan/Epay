@@ -6,6 +6,8 @@ if(isset($_GET['sid'])){
 	if(!preg_match('/^(.[a-zA-Z0-9]+)$/',$sid))exit("Access Denied");
 	session_id($sid);
 	session_start();
+	// 防止会话固定攻击
+	session_regenerate_id(true);
 }
 
 @header('Content-Type: text/html; charset=UTF-8');

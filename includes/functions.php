@@ -905,7 +905,7 @@ function randFloat($min=0, $max=1){
 function check_cert($idcard, $name, $phone){
 	global $conf;
 	$appcode = $conf['cert_appcode'];
-	$url = 'http://phone3.market.alicloudapi.com/phonethree';
+	$url = 'https://phone3.market.alicloudapi.com/phonethree';
 	$post = ['idcard'=>$idcard, 'phone'=>$phone, 'realname'=>$name];
 	$data = get_curl($url.'?'.http_build_query($post), 0,0,0,0,0,0, ['Authorization: APPCODE '.$appcode, 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8']);
 	$arr=json_decode($data,true);
@@ -920,7 +920,7 @@ function check_cert($idcard, $name, $phone){
 function check_corp_cert($companyName, $creditNo, $legalPerson){
 	global $conf;
 	$appcode = $conf['cert_appcode2'];
-	$url = 'http://companythree.shumaidata.com/companythree/check';
+	$url = 'https://companythree.shumaidata.com/companythree/check';
 	$post = ['companyName'=>$companyName, 'creditNo'=>$creditNo, 'legalPerson'=>$legalPerson];
 	$data = get_curl($url.'?'.http_build_query($post), 0, 0,0,0,0,0, ['Authorization: APPCODE '.$appcode, 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8']);
 	$arr=json_decode($data,true);
@@ -1165,9 +1165,9 @@ function verify_captcha($user_id = 'public'){
 function verify_captcha4(){
     if(!isset($_POST['captcha_id']) || !isset($_POST['lot_number']) || !isset($_POST['pass_token']) || !isset($_POST['gen_time']) || !isset($_POST['captcha_output'])) return false;
     $real_ip = real_ip();
-    $url = 'http://gt4.geetest.com/demov4/demo/login';
+    $url = 'https://gt4.geetest.com/demov4/demo/login';
     $param = ['captcha_id'=>$_POST['captcha_id'], 'lot_number'=>$_POST['lot_number'], 'pass_token'=>$_POST['pass_token'], 'gen_time'=>$_POST['gen_time'], 'captcha_output'=>$_POST['captcha_output']];
-    $referer = 'http://gt4.geetest.com/demov4/invisible-bind-zh.html';
+    $referer = 'https://gt4.geetest.com/demov4/invisible-bind-zh.html';
     $httpheader[] = "X-Real-IP: ".$real_ip;
 	$httpheader[] = "X-Forwarded-For: ".$real_ip;
     $data = get_curl($url.'?'.http_build_query($param),0,$referer,0,0,0,0,$httpheader);
@@ -1306,7 +1306,7 @@ function alipaymini_jump_scheme($orderid, $appid = null){
 }
 
 function getBankCardInfo($cardno){
-	$url = 'http://api.cccyun.cc/bankcard.php?cardno='.$cardno;
+	$url = 'https://api.cccyun.cc/bankcard.php?cardno='.$cardno;
 	$data = get_curl($url);
 	$arr = json_decode($data, true);
 	if(isset($arr['code']) && $arr['code']==0){

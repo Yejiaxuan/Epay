@@ -34,17 +34,19 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
     }
     $password = $plain;
   }
+  $is_bcrypt = (strlen($conf['admin_pwd']) === 60 && substr($conf['admin_pwd'], 0, 4) === '$2y$');
   if($username == $conf['admin_user'] && (
-    password_verify($password, $conf['admin_pwd']) ||
-    $password == $conf['admin_pwd']
+    ($is_bcrypt && password_verify($password, $conf['admin_pwd'])) ||
+    (!$is_bcrypt && $password === $conf['admin_pwd'])
   )){
     // 如果是明文密码匹配，自动升级为哈希存储
-    if (!password_verify($password, $conf['admin_pwd'])) {
+    if (!$is_bcrypt) {
       saveSetting('admin_pwd', password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]));
       $CACHE->clear();
+      $conf['admin_pwd'] = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
     }
     $DB->insert('log', ['uid'=>0, 'type'=>'登录后台', 'date'=>'NOW()', 'ip'=>$clientip]);
-		$session=md5($username.$password.$password_hash);
+		$session=md5($username.$conf['admin_pwd'].$password_hash);
 		$expiretime=time() + 2592000;
 		$token=authcode("{$username}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
 		setcookie("admin_token", $token, $expiretime, null, null, null, true);

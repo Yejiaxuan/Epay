@@ -13,6 +13,10 @@ if(isset($_GET['sid'])){
 	session_id($sid);
 }
 session_start();
+// 防止会话固定攻击：外部传入 sid 时立即重新生成
+if(isset($_GET['sid'])){
+	session_regenerate_id(true);
+}
 
 if(isset($_GET['act']) && $_GET['act']=='login'){
 	if(isset($_SESSION['openid']) && !empty($_SESSION['openid'])){
@@ -27,7 +31,7 @@ if(isset($_GET['act']) && $_GET['act']=='login'){
 			$session=md5($uid.$key.$password_hash);
 			$expiretime=time()+2592000;
 			$token=authcode("{$uid}\t{$session}\t{$expiretime}", 'ENCODE', SYS_KEY);
-			setcookie("user_token", $token, time() + 2592000);
+			setcookie("user_token", $token, time() + 2592000, '/', null, null, true);
 			$DB->exec("update `pre_user` set `lasttime`=NOW() where `uid`='$uid'");
 			$result=array("code"=>0,"msg"=>"登录成功！正在跳转到用户中心","url"=>"./");
 		}elseif($islogin2==1){
@@ -60,7 +64,7 @@ if($islogin2==1 && isset($_GET['unbind'])){
 }
 elseif(strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger')!==false){
 
-$redirect_url = isset($_GET['url'])?$_GET['url']:null;
+$redirect_url = isset($_GET['url']) ? preg_replace('/[^a-zA-Z0-9_.\/\-]/', '', $_GET['url']) : null;
 if($islogin2==1 && !isset($_GET['bind']) && !isset($_GET['code'])){
 	exit("<script language='javascript'>window.location.href='./{$redirect_url}';</script>");
 }
