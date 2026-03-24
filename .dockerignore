@@ -1,0 +1,11 @@
+.git
+.github
+deploy/README.md
+docker-compose.yml
+Dockerfile
+.dockerignore
+README.md
+nginx.txt
+IIS.txt
+*.md
+*.txt

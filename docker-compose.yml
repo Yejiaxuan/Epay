@@ -1,0 +1,64 @@
+# Epay Docker Compose Configuration
+#
+# 部署步骤：
+#   1. 确保 gateway-internal 网络已存在：docker network create gateway-internal
+#   2. 修改下方数据库密码
+#   3. docker compose up -d
+#   4. 浏览器访问 https://pay.tokendance.tech 完成安装向导
+#   5. 安装完成后删除 install 目录：docker exec epay rm -rf /var/www/html/install
+#
+# ⚠️  务必修改所有默认密码！
+
+version: '3.4'
+
+services:
+  epay:
+    build: .
+    container_name: epay
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      epay-mysql:
+        condition: service_healthy
+    networks:
+      - epay-internal
+      - gateway-internal
+    # 不暴露端口到宿主机，Caddy 通过 gateway-internal 网络直接访问 epay:80
+    # 如需调试可取消注释：
+    # ports:
+    #   - "127.0.0.1:8880:80"
+
+  epay-mysql:
+    image: mysql:5.7
+    container_name: epay-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: change_me_root_password    # ⚠️ 改成强密码
+      MYSQL_DATABASE: epay
+      MYSQL_USER: epay
+      MYSQL_PASSWORD: change_me_epay_password          # ⚠️ 改成强密码
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_general_ci
+      TZ: Asia/Shanghai
+    volumes:
+      - epay_mysql_data:/var/lib/mysql
+    networks:
+      - epay-internal
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pchange_me_root_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # 不暴露端口到宿主机
+    # ports:
+    #   - "127.0.0.1:3307:3306"
+
+volumes:
+  epay_mysql_data:
+
+networks:
+  epay-internal:
+    driver: bridge
+  gateway-internal:
+    external: true
